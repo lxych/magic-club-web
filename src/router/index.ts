@@ -1,0 +1,100 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    {
+      path: '/login',
+      name: 'Login',
+      component: () => import('@/views/login/auth.vue'),
+      meta: { public: true }
+    },
+    {
+      path: '/register',
+      name: 'Register',
+      redirect: '/login',
+      meta: { public: true }
+    },
+    {
+      path: '/',
+      name: 'Layout',
+      component: () => import('@/layouts/MainLayout.vue'),
+      redirect: '/dashboard',
+      children: [
+        {
+          path: 'dashboard',
+          name: 'Dashboard',
+          component: () => import('@/views/dashboard/index.vue'),
+          meta: { title: '首页', icon: 'Home' }
+        },
+        {
+          path: 'forum',
+          name: 'Forum',
+          component: () => import('@/views/forum/index.vue'),
+          meta: { title: '论坛', icon: 'ChatDotRound' }
+        },
+        {
+          path: 'forum/post/:id',
+          name: 'PostDetail',
+          component: () => import('@/views/forum/detail.vue'),
+          meta: { title: '帖子详情', hidden: true }
+        },
+        {
+          path: 'resource',
+          name: 'Resource',
+          component: () => import('@/views/resource/index.vue'),
+          meta: { title: '资源中心', icon: 'Folder' }
+        },
+        {
+          path: 'memorial',
+          name: 'Memorial',
+          component: () => import('@/views/memorial/index.vue'),
+          meta: { title: '纪念墙', icon: 'Trophy' }
+        },
+        {
+          path: 'profile',
+          name: 'Profile',
+          component: () => import('@/views/user/profile.vue'),
+          meta: { title: '个人中心', icon: 'User', hidden: true }
+        },
+        {
+          path: 'alumni',
+          name: 'Alumni',
+          component: () => import('@/views/user/alumni.vue'),
+          meta: { title: '毕业成员', icon: 'UserFilled' }
+        },
+        {
+          path: 'admin-guide',
+          name: 'AdminGuide',
+          component: () => import('@/views/admin/guide.vue'),
+          meta: { 
+            title: '管理员手册', 
+            icon: 'Document',
+            adminOnly: true  // 仅管理员可见
+          }
+        }
+      ]
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('@/views/error/404.vue')
+    }
+  ]
+})
+
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore()
+  
+  if (!to.meta.public && !userStore.isLoggedIn) {
+    next('/login')
+  } else if (to.path === '/login' && userStore.isLoggedIn) {
+    next('/')
+  } else {
+    next()
+  }
+})
+
+export default router
