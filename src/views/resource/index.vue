@@ -28,7 +28,7 @@
           <el-option label="其他" value="OTHER" />
         </el-select>
       </div>
-      <el-button v-if="isAdmin" type="primary" @click="showUploadDialog = true">
+      <el-button v-if="userStore.isLoggedIn" type="primary" @click="showUploadDialog = true">
         <el-icon><Upload /></el-icon> 上传资源
       </el-button>
     </div>
@@ -79,9 +79,12 @@
             {{ row.downloadCount }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column label="操作" width="160" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="handleDownload(row.id)">
+            <el-button type="primary" link @click="openPreview(row)">
+              <el-icon><View /></el-icon>
+            </el-button>
+            <el-button v-if="row.allowDownload !== 0" type="primary" link @click="handleDownload(row)">
               <el-icon><Download /></el-icon>
             </el-button>
             <el-button 
@@ -141,10 +144,33 @@
             placeholder="请输入文件描述"
           />
         </el-form-item>
+        <el-form-item label="可下载">
+          <el-switch v-model="formData.allowDownload" active-text="是" inactive-text="否" />
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showUploadDialog = false">取消</el-button>
         <el-button type="primary" :loading="uploading" @click="handleUpload">上传</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 预览弹窗 -->
+    <el-dialog v-model="previewVisible" :title="previewFile?.originalName" width="70%" top="5vh" append-to-body>
+      <template v-if="previewFile">
+        <div style="margin-bottom:12px;color:#666">
+          上传者：{{ previewFile.uploaderName }}　｜　{{ previewFile.description || '无描述' }}
+        </div>
+        <div v-if="previewFile.fileType==='IMAGE'" style="text-align:center">
+          <img :src="'/api/resource/'+previewFile.id+'/preview'" style="max-width:100%;max-height:70vh" />
+        </div>
+        <div v-else-if="previewFile.fileType==='VIDEO'" style="text-align:center">
+          <video :src="'/api/resource/'+previewFile.id+'/preview'" controls style="max-width:100%;max-height:70vh"></video>
+        </div>
+        <div v-else style="text-align:center;padding:40px;color:#999">
+          <p>📄 {{ previewFile.originalName }}</p>
+          <p>浏览器原生预览（支持PDF/文本/代码等）</p>
+          <iframe :src="'/api/resource/'+previewFile.id+'/preview'" style="width:100%;height:60vh;border:1px solid #eee;margin-top:12px" />
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -157,7 +183,7 @@ import { getResourceList, uploadFile, deleteFile, downloadFile } from '@/api/res
 import { useUserStore } from '@/stores/user'
 import type { ResourceFile } from '@/api/resource'
 import dayjs from 'dayjs'
-import { Search, Upload, Document, VideoCamera, Picture, Files, Download, Delete } from '@element-plus/icons-vue'
+import { Search, Upload, Document, VideoCamera, Picture, Files, Download, Delete, View } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 const isAdmin = computed(() => userStore.userInfo?.role === 'ADMIN')
@@ -179,10 +205,19 @@ const uploading = ref(false)
 const uploadRef = ref()
 const formRef = ref()
 
+const previewVisible = ref(false)
+const previewFile = ref<ResourceFile | null>(null)
+
+const openPreview = (row: ResourceFile) => {
+  previewFile.value = row
+  previewVisible.value = true
+}
+
 const formData = reactive({
   file: null as File | null,
   category: '',
-  description: ''
+  description: '',
+  allowDownload: true
 })
 
 const rules = {
@@ -258,21 +293,25 @@ const handleUpload = async () => {
   
   uploading.value = true
   try {
-    await uploadFile(formData.file, formData.description, formData.category)
+    await uploadFile(formData.file, formData.description, formData.category, formData.allowDownload ? 1 : 0)
     ElMessage.success('上传成功')
     showUploadDialog.value = false
     formData.file = null
     formData.description = ''
     formData.category = ''
-    uploadRef.value?.clearFiles()
+    formData.allowDownload = true
     fetchResources()
   } finally {
     uploading.value = false
   }
 }
 
-const handleDownload = (id: number) => {
-  downloadFile(id)
+const handleDownload = (row: ResourceFile) => {
+  if (Number(row.allowDownload) === 0) {
+    ElMessage.warning('该资源不允许下载')
+    return
+  }
+  downloadFile(row.id)
 }
 
 const handleDelete = async (id: number) => {

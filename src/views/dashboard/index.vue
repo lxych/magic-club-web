@@ -142,13 +142,13 @@ const formatTime = (time: string) => dayjs(time).format('MM-DD')
 const fetchData = async () => {
   try {
     const [postRes, resourceRes, userRes] = await Promise.all([
-      getPostList({ pageNum: 1, pageSize: 10 }),
-      getResourceList({ pageNum: 1, pageSize: 10 }),
+      getPostList({ pageNum: 1, pageSize: 5 }),
+      getResourceList({ pageNum: 1, pageSize: 5 }),
       getUserList({ pageNum: 1, pageSize: 1 })
     ])
-    // 取最新10条（API已按时间倒序返回）
-    latestPosts.value = (postRes.records || []).slice(0, 10)
-    latestResources.value = (resourceRes.records || []).slice(0, 10)
+    // 取最新5条（API已按时间倒序返回）
+    latestPosts.value = (postRes.records || []).slice(0, 5)
+    latestResources.value = (resourceRes.records || []).slice(0, 5)
     stats.value.postCount = postRes.total || 0
     stats.value.resourceCount = resourceRes.total || 0
     stats.value.memberCount = userRes.total || 0

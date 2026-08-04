@@ -27,6 +27,9 @@
             <el-form-item label="真实姓名">
               <el-input v-model="formData.realName" />
             </el-form-item>
+            <el-form-item label="昵称">
+              <el-input v-model="formData.nickname" placeholder="设置后将以昵称显示" />
+            </el-form-item>
             <el-form-item label="性别">
               <el-select v-model="formData.gender">
                 <el-option label="未知" :value="0" />
@@ -73,8 +76,12 @@
               <span class="value">{{ userStore.userInfo?.realName }}</span>
             </div>
             <div class="info-item">
+              <span class="label">昵称</span>
+              <span class="value">{{ userStore.userInfo?.nickname || '未设置' }}</span>
+            </div>
+            <div class="info-item">
               <span class="label">性别</span>
-              <span class="value">{{ userStore.userInfo?.genderName }}</span>
+              <span class="value">{{ genderDisplay }}</span>
             </div>
             <div class="info-item">
               <span class="label">学号</span>
@@ -139,10 +146,22 @@
 
     <!-- 头像上传对话框 -->
     <el-dialog v-model="showAvatarDialog" title="更换头像" width="400px">
-      <el-input v-model="avatarUrl" placeholder="请输入头像图片URL" />
+      <div class="avatar-upload-area">
+        <img v-if="avatarPreview" :src="avatarPreview" class="avatar-preview-img" />
+        <el-upload
+          :show-file-list="false"
+          :before-upload="handleAvatarUpload"
+          accept="image/*"
+          :http-request="() => {}"
+          drag
+        >
+          <el-icon class="el-icon--upload"><Plus /></el-icon>
+          <div class="el-upload__text">拖拽或点击上传头像</div>
+        </el-upload>
+      </div>
       <template #footer>
         <el-button @click="showAvatarDialog = false">取消</el-button>
-        <el-button type="primary" :loading="uploadingAvatar" @click="handleUpdateAvatar">
+        <el-button type="primary" :loading="uploadingAvatar" :disabled="!avatarUrl" @click="handleUpdateAvatar">
           保存
         </el-button>
       </template>
@@ -151,18 +170,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
+import request from '@/utils/request'
 import { useUserStore } from '@/stores/user'
 import { updateUserInfo, changePassword, uploadAvatar } from '@/api/user'
 import type { UserInfo } from '@/api/user'
 
 const userStore = useUserStore()
 
+// 性别映射
+const genderMap: Record<number, string> = { 0: '未知', 1: '男', 2: '女' }
+const genderDisplay = computed(() => {
+  const g = userStore.userInfo?.gender
+  return genderMap[Number(g)] ?? '未知'
+})
+
 const isEditing = ref(false)
 const saving = ref(false)
 const showAvatarDialog = ref(false)
 const avatarUrl = ref('')
+const avatarPreview = ref('')
 const uploadingAvatar = ref(false)
 
 const formData = reactive<Partial<UserInfo>>({})
@@ -201,7 +230,8 @@ watch(() => userStore.userInfo, (info) => {
     Object.assign(formData, {
       username: info.username,
       realName: info.realName,
-      gender: info.gender,
+      nickname: info.nickname || '',
+      gender: Number(info.gender),
       studentNo: info.studentNo,
       enrollmentYear: info.enrollmentYear,
       phone: info.phone,
@@ -217,13 +247,31 @@ watch(() => userStore.userInfo, (info) => {
 const handleSave = async () => {
   saving.value = true
   try {
-    await updateUserInfo(formData)
+    // 确保 gender 为数字
+    const saveData = { ...formData, gender: Number(formData.gender) }
+    await updateUserInfo(saveData)
     await userStore.fetchUserInfo()
     ElMessage.success('保存成功')
     isEditing.value = false
   } finally {
     saving.value = false
   }
+}
+
+const handleAvatarUpload = async (file: File) => {
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res: any = await request.post('/resource/forum-upload', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    avatarUrl.value = res.fileUrl
+    avatarPreview.value = res.fileUrl
+    ElMessage.success('上传成功')
+  } catch {
+    ElMessage.error('上传失败')
+  }
+  return false
 }
 
 const handleChangePassword = async () => {
@@ -243,8 +291,8 @@ const handleChangePassword = async () => {
 }
 
 const handleUpdateAvatar = async () => {
-  if (!avatarUrl.value.trim()) {
-    ElMessage.warning('请输入头像URL')
+  if (!avatarUrl.value) {
+    ElMessage.warning('请先上传图片')
     return
   }
   
@@ -255,6 +303,7 @@ const handleUpdateAvatar = async () => {
     ElMessage.success('头像更新成功')
     showAvatarDialog.value = false
     avatarUrl.value = ''
+    avatarPreview.value = ''
   } finally {
     uploadingAvatar.value = false
   }
@@ -298,6 +347,19 @@ const handleUpdateAvatar = async () => {
         color: #333;
         font-size: 14px;
       }
+    }
+  }
+
+  .avatar-upload-area {
+    text-align: center;
+
+    .avatar-preview-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 16px;
+      border: 3px solid #409eff;
     }
   }
 }

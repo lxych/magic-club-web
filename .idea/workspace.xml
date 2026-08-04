@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2fb70c83-e242-4e3f-9f6f-75d9b1898bc3" name="更改" comment="">
+    <list default="true" id="2fb70c83-e242-4e3f-9f6f-75d9b1898bc3" name="更改" comment="v1.0">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vue-global-types/vue_3.5_0_0_0.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.vue-global-types/vue_3.5_0_0_0.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/resource.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/resource.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/MainLayout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/MainLayout.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/router/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/router/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/request.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/request.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/forum/detail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/forum/detail.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/forum/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/forum/index.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/login/auth.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/login/auth.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/resource/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/resource/index.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/user/profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/user/profile.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/vite.config.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,8 +81,22 @@
       <workItem from="1776059828087" duration="8586000" />
       <workItem from="1776302023191" duration="2897000" />
       <workItem from="1776424432553" duration="1195000" />
-      <workItem from="1776648500692" duration="400000" />
+      <workItem from="1776648500692" duration="2837000" />
+      <workItem from="1776736714278" duration="1218000" />
+      <workItem from="1777253291233" duration="114000" />
+      <workItem from="1777518590961" duration="404000" />
+      <workItem from="1785720081299" duration="595000" />
+      <workItem from="1785725752415" duration="1191000" />
     </task>
+    <task id="LOCAL-00001" summary="v1.0">
+      <option name="closed" value="true" />
+      <created>1776648956686</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1776648956686</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -85,5 +112,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="v1.0" />
+    <option name="LAST_COMMIT_MESSAGE" value="v1.0" />
   </component>
 </project>

@@ -18,7 +18,7 @@
         </div>
       </div>
       
-      <div class="post-content">{{ post.content }}</div>
+      <div class="post-content" v-html="renderMarkdown(post.content)" />
       
       <div class="post-actions">
         <el-button :type="liked ? 'primary' : ''" @click="handleLike">
@@ -55,6 +55,16 @@
       
       <!-- 顶部评论输入框（默认） -->
       <div v-if="!replyingTo" class="reply-input-box">
+        <div class="reply-toolbar">
+          <el-popover placement="top" :width="320" trigger="click">
+            <template #reference>
+              <el-button size="small" text>😀 表情</el-button>
+            </template>
+            <div class="emoji-grid">
+              <span v-for="e in emojis" :key="e" class="emoji-item" @click="replyContent += e">{{ e }}</span>
+            </div>
+          </el-popover>
+        </div>
         <el-input
           v-model="replyContent"
           type="textarea"
@@ -143,6 +153,16 @@
               
               <!-- 二级评论的跟随回复输入框 -->
               <div v-if="replyingTo?.id === child.id" class="inline-reply-input child-inline-reply">
+                <div class="reply-toolbar">
+                  <el-popover placement="top" :width="320" trigger="click">
+                    <template #reference>
+                      <el-button size="small" text>😀</el-button>
+                    </template>
+                    <div class="emoji-grid">
+                      <span v-for="e in emojis" :key="e" class="emoji-item" @click="replyContent += e">{{ e }}</span>
+                    </div>
+                  </el-popover>
+                </div>
                 <el-input
                   v-model="replyContent"
                   type="textarea"
@@ -370,6 +390,15 @@ const handleDeleteReply = async (reply: PostReply) => {
 
 onMounted(fetchDetail)
 
+const emojis = ['😀','😂','🤣','😍','😎','🤩','😭','😡','👍','👎','🙏','💪','👀','🎉','🔥','❤️','💔','✨','🌟','🎵','🎸','🎭','🎪','🃏','🔮','🪄','🐱','🐶','🌹','🍀','⭐','💯','✅','❌','👉','💬']
+
+const renderMarkdown = (text: string) => {
+  if (!text) return ''
+  return text
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:8px;margin:8px 0" />')
+    .replace(/\n/g, '<br/>')
+}
+
 watch(() => route.params.id, () => {
   fetchDetail()
 })
@@ -557,5 +586,22 @@ watch(() => route.params.id, () => {
       }
     }
   }
+}
+
+.emoji-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  .emoji-item {
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    &:hover { background: #e8f0fe; }
+  }
+}
+
+.reply-toolbar {
+  margin-bottom: 6px;
 }
 </style>

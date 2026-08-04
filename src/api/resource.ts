@@ -18,6 +18,7 @@ export interface ResourceFile {
   categoryName: string
   isPublic: number
   status: number
+  allowDownload: number
   createTime: string
   updateTime: string
 }
@@ -31,12 +32,12 @@ export interface ResourceQuery {
 }
 
 // 上传文件
-export const uploadFile = (file: File, description?: string, category?: string) => {
+export const uploadFile = (file: File, description?: string, category?: string, allowDownload: number = 1) => {
   const formData = new FormData()
   formData.append('file', file)
   if (description) formData.append('description', description)
   if (category) formData.append('category', category)
-  
+  formData.append('allowDownload', String(allowDownload))
   return request.post('/resource/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   })
@@ -70,4 +71,9 @@ export const getMyResources = (params: { pageNum?: number; pageSize?: number }) 
 // 审核资源
 export const auditResource = (id: number, status: number) => {
   return request.post(`/resource/${id}/audit`, null, { params: { status } })
+}
+
+// 获取待审批资源列表
+export const getPendingResources = (params: { pageNum?: number; pageSize?: number }) => {
+  return request.get('/resource/pending', { params })
 }

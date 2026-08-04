@@ -41,7 +41,7 @@
               <el-tag v-if="post.isEssence == 1" type="warning" size="small" effect="dark">精华</el-tag>
               <h3 class="post-title">{{ post.title }}</h3>
             </div>
-            <p class="post-summary">{{ post.content.slice(0, 100) }}...</p>
+            <p class="post-summary">{{ stripMarkdown(post.content).slice(0, 100) }}{{ stripMarkdown(post.content).length > 100 ? '...' : '' }}</p>
             <div class="post-meta">
               <span class="author">
                 <el-avatar :size="20" :src="post.authorAvatar" />
@@ -65,6 +65,7 @@
         <el-pagination
           v-model:current-page="query.pageNum"
           v-model:page-size="query.pageSize"
+          :pager-count="5"
           :page-sizes="[10, 20, 50]"
           :total="total"
           layout="total, sizes, prev, pager, next"
@@ -89,16 +90,46 @@
           </el-select>
         </el-form-item>
         <el-form-item label="内容" prop="content">
-          <el-input
-            v-model="formData.content"
-            type="textarea"
-            :rows="6"
-            placeholder="请输入内容"
-          />
+          <div class="editor-wrapper">
+            <div v-if="uploadedImages.length" class="image-preview-row">
+              <div v-for="(img, idx) in uploadedImages" :key="idx" class="image-thumb">
+                <img :src="img.url" />
+                <span class="image-delete" @click="removeImage(idx)">×</span>
+              </div>
+            </div>
+            <div class="editor-toolbar">
+              <el-upload
+                :show-file-list="false"
+                :before-upload="handleImageUpload"
+                accept="image/*"
+                :http-request="() => {}"
+                :disabled="imageCount >= 9"
+              >
+                <el-button size="small" :disabled="imageCount >= 9">🖼️ 图片 ({{ imageCount }}/9)</el-button>
+              </el-upload>
+              <el-popover placement="bottom" :width="320" trigger="click">
+                <template #reference>
+                  <el-button size="small">😀 表情</el-button>
+                </template>
+                <div class="emoji-grid">
+                  <span v-for="e in emojis" :key="e" class="emoji-item" @click="insertEmoji('content', e)">{{ e }}</span>
+                </div>
+              </el-popover>
+            </div>
+            <el-input
+              v-model="formData.content"
+              type="textarea"
+              :rows="8"
+              placeholder="请输入文字内容，图片会显示在上方"
+            />
+          </div>
+        </el-form-item>
+        <el-form-item v-if="formData.content || uploadedImages.length" label="预览">
+          <div class="content-preview" v-html="previewContent" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showCreateDialog = false">取消</el-button>
+        <el-button @click="showCreateDialog = false; uploadedImages = []; imageCount = 0">取消</el-button>
         <el-button type="primary" :loading="submitting" @click="handleCreate">发布</el-button>
       </template>
     </el-dialog>
@@ -106,10 +137,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getPostList, createPost } from '@/api/forum'
+import request from '@/utils/request'
 import type { Post } from '@/api/forum'
 import dayjs from 'dayjs'
 import { Search, Plus, View, Star, ChatLineRound } from '@element-plus/icons-vue'
@@ -130,6 +162,16 @@ const query = reactive({
 const showCreateDialog = ref(false)
 const submitting = ref(false)
 const formRef = ref()
+const imageCount = ref(0)
+const uploadedImages = ref<{name: string, url: string}[]>([])
+
+const previewContent = computed(() => {
+  let md = formData.content || ''
+  for (const img of uploadedImages.value) {
+    md += '\n![' + img.name + '](' + img.url + ')'
+  }
+  return renderMarkdown(md)
+})
 
 const formData = reactive({
   title: '',
@@ -181,9 +223,15 @@ const handleCreate = async () => {
   
   submitting.value = true
   try {
-    await createPost(formData)
+    let fullContent = formData.content || ''
+    for (const img of uploadedImages.value) {
+      fullContent += '\n![' + img.name + '](' + img.url + ')'
+    }
+    await createPost({ ...formData, content: fullContent })
     ElMessage.success('发布成功')
     showCreateDialog.value = false
+    imageCount.value = 0
+    uploadedImages.value = []
     formData.title = ''
     formData.content = ''
     fetchPosts()
@@ -193,6 +241,48 @@ const handleCreate = async () => {
 }
 
 onMounted(fetchPosts)
+
+const emojis = ['😀','😂','🤣','😍','😎','🤩','😭','😡','👍','👎','🙏','💪','👀','🎉','🔥','❤️','💔','✨','🌟','🎵','🎸','🎭','🎪','🃏','🔮','🪄','🐱','🐶','🌹','🍀','⭐','💯','✅','❌','👉','💬']
+
+const insertEmoji = (field: string, emoji: string) => {
+  formData.content = formData.content + emoji
+}
+
+const handleImageUpload = async (file: File) => {
+  if (imageCount.value >= 9) {
+    ElMessage.warning('最多上传9张图片')
+    return false
+  }
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res: any = await request.post('/resource/forum-upload', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    uploadedImages.value.push({ name: file.name, url: res.fileUrl })
+    imageCount.value++
+    ElMessage.success('图片已添加')
+  } catch {
+    ElMessage.error('图片上传失败')
+  }
+  return false
+}
+
+const removeImage = (idx: number) => {
+  uploadedImages.value.splice(idx, 1)
+  imageCount.value--
+}
+
+const renderMarkdown = (text: string) => {
+  if (!text) return ''
+  return text
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:8px;margin:8px 0" />')
+    .replace(/\n/g, '<br/>')
+}
+
+const stripMarkdown = (text: string) => {
+  return (text || '').replace(/!\[.*?\]\(.*?\)/g, '[图片]').replace(/[#*_~>]/g, '')
+}
 </script>
 
 <style scoped lang="scss">
@@ -277,6 +367,81 @@ onMounted(fetchPosts)
     display: flex;
     justify-content: center;
     margin-top: 20px;
+  }
+
+  .editor-toolbar {
+    margin-bottom: 8px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .editor-wrapper :deep(.el-textarea__inner) {
+    min-height: 200px;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .image-preview-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+
+    .image-thumb {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .image-delete {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 22px;
+        height: 22px;
+        background: rgba(0,0,0,.6);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+
+        &:hover { background: #f56c6c; }
+      }
+    }
+  }
+
+  .content-preview {
+    padding: 12px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    min-height: 40px;
+    line-height: 1.8;
+    word-break: break-all;
+  }
+
+  .emoji-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    .emoji-item {
+      font-size: 22px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      &:hover { background: #e8f0fe; }
+    }
   }
 }
 </style>

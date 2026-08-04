@@ -62,7 +62,7 @@ const router = createRouter({
           path: 'alumni',
           name: 'Alumni',
           component: () => import('@/views/user/alumni.vue'),
-          meta: { title: '毕业成员', icon: 'UserFilled' }
+          meta: { title: '花名册', icon: 'UserFilled' }
         },
         {
           path: 'admin-guide',
@@ -71,7 +71,17 @@ const router = createRouter({
           meta: { 
             title: '管理员手册', 
             icon: 'Document',
-            adminOnly: true  // 仅管理员可见
+            adminOnly: true
+          }
+        },
+        {
+          path: 'admin-resource-audit',
+          name: 'ResourceAudit',
+          component: () => import('@/views/admin/resource-audit.vue'),
+          meta: {
+            title: '资源审批',
+            icon: 'Checked',
+            adminOnly: true
           }
         }
       ]

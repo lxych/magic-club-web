@@ -1,0 +1,1 @@
+import{U as t}from"./index-KmYF4DYQ.js";const o=()=>t.get("/user/invite-code"),r=e=>t.post("/user/invite-code",null,{params:{code:e}}),u=e=>t.delete("/user/invite-code",{params:{reason:e}}),a=e=>t.post(`/user/${e}/force-logout`),n=()=>t.get("/user/global-mute"),l=e=>t.post("/user/global-mute",null,{params:{mute:e}});export{n as a,l as b,a as f,o as g,u as i,r as s};
