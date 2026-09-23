@@ -44,7 +44,9 @@
             <p class="post-summary">{{ stripMarkdown(post.content).slice(0, 100) }}{{ stripMarkdown(post.content).length > 100 ? '...' : '' }}</p>
             <div class="post-meta">
               <span class="author">
-                <el-avatar :size="20" :src="post.authorAvatar" />
+                <router-link :to="`/user/${post.userId}`" class="avatar-link">
+                  <el-avatar :size="20" :src="post.authorAvatar" />
+                </router-link>
                 {{ post.authorName }}
               </span>
               <span class="category">{{ post.categoryName || post.category }}</span>
@@ -292,6 +294,10 @@ const stripMarkdown = (text: string) => {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    padding: 16px 20px;
+    background: var(--mc-bg-primary);
+    border-radius: var(--mc-radius-md);
+    box-shadow: var(--mc-shadow-sm);
     
     .search-area {
       display: flex;
@@ -299,15 +305,23 @@ const stripMarkdown = (text: string) => {
     }
   }
   
+  :deep(.el-card) {
+    border: 1px solid var(--mc-border-light) !important;
+  }
+  
   .post-list {
     .post-item {
-      padding: 16px;
-      border-bottom: 1px solid #f0f0f0;
+      padding: 20px;
+      border-bottom: 1px solid var(--mc-border-light);
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.3s ease;
+      border-radius: 10px;
+      margin: 4px -8px;
       
       &:hover {
-        background: #f5f7fa;
+        background: rgba(102, 126, 234, 0.03);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.08);
       }
       
       &:last-child {
@@ -319,21 +333,26 @@ const stripMarkdown = (text: string) => {
           display: flex;
           align-items: center;
           gap: 8px;
-          margin-bottom: 8px;
+          margin-bottom: 10px;
           
           .post-title {
             margin: 0;
             font-size: 16px;
-            font-weight: 500;
-            color: #333;
+            font-weight: 600;
+            color: var(--mc-text-primary);
+            transition: color 0.2s;
+          }
+          
+          &:hover .post-title {
+            color: var(--mc-primary);
           }
         }
         
         .post-summary {
-          margin: 0 0 12px;
+          margin: 0 0 14px;
           font-size: 14px;
-          color: #666;
-          line-height: 1.5;
+          color: var(--mc-text-secondary);
+          line-height: 1.6;
         }
         
         .post-meta {
@@ -341,18 +360,32 @@ const stripMarkdown = (text: string) => {
           align-items: center;
           gap: 16px;
           font-size: 13px;
-          color: #999;
+          color: var(--mc-text-muted);
           
           .author {
             display: flex;
             align-items: center;
             gap: 6px;
+
+            .avatar-link {
+              display: flex;
+              align-items: center;
+            }
+          }
+          
+          .category {
+            padding: 2px 8px;
+            background: rgba(102, 126, 234, 0.08);
+            border-radius: 4px;
+            color: var(--mc-primary);
+            font-size: 12px;
           }
           
           .stats {
             display: flex;
             align-items: center;
             gap: 12px;
+            margin-left: auto;
             
             .el-icon {
               margin-right: 2px;
@@ -366,7 +399,8 @@ const stripMarkdown = (text: string) => {
   .pagination-wrapper {
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 24px;
+    padding-top: 16px;
   }
 
   .editor-toolbar {
@@ -375,10 +409,14 @@ const stripMarkdown = (text: string) => {
     gap: 8px;
   }
 
-  .editor-wrapper :deep(.el-textarea__inner) {
-    min-height: 200px;
-    font-size: 15px;
-    line-height: 1.8;
+  .editor-wrapper {
+    width: 100%;
+    :deep(.el-textarea__inner) {
+      min-height: 200px;
+      font-size: 15px;
+      line-height: 1.8;
+      border-radius: 10px;
+    }
   }
 
   .image-preview-row {
@@ -391,9 +429,9 @@ const stripMarkdown = (text: string) => {
       position: relative;
       width: 100px;
       height: 100px;
-      border-radius: 6px;
+      border-radius: 8px;
       overflow: hidden;
-      border: 1px solid #e0e0e0;
+      border: 2px solid var(--mc-border-light);
 
       img {
         width: 100%;
@@ -417,15 +455,15 @@ const stripMarkdown = (text: string) => {
         font-size: 16px;
         line-height: 1;
 
-        &:hover { background: #f56c6c; }
+        &:hover { background: var(--mc-danger); }
       }
     }
   }
 
   .content-preview {
-    padding: 12px;
-    background: #f9f9f9;
-    border-radius: 6px;
+    padding: 16px;
+    background: var(--mc-bg-tertiary);
+    border-radius: 10px;
     min-height: 40px;
     line-height: 1.8;
     word-break: break-all;
@@ -439,8 +477,9 @@ const stripMarkdown = (text: string) => {
       font-size: 22px;
       cursor: pointer;
       padding: 4px;
-      border-radius: 4px;
-      &:hover { background: #e8f0fe; }
+      border-radius: 6px;
+      transition: all 0.2s;
+      &:hover { background: rgba(102, 126, 234, 0.1); transform: scale(1.2); }
     }
   }
 }

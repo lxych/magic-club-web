@@ -106,3 +106,28 @@ export const updateGraduatedInfo = (id: string, graduationYear: number) => {
 export const cancelGraduated = (id: string) => {
   return request.delete(`/user/${id}/graduate`)
 }
+
+// 注销用户（管理员）
+export const cancelUser = (id: string) => {
+  return request.put(`/user/${id}/cancel`)
+}
+
+// 获取用户详情
+export const getUserDetail = (id: string | number, params?: { postPage?: number; resourcePage?: number; pageSize?: number }) => {
+  return request.get(`/user/${id}/detail`, { params })
+}
+
+// 获取用户权限列表（管理员）
+export const getUserPermissions = (id: string | number) => {
+  return request.get<string[]>(`/user/${id}/permissions`)
+}
+
+// 更新用户权限（管理员）
+export const updateUserPermissions = (id: string | number, permissions: string[]) => {
+  return request.put(`/user/${id}/permissions`, { permissions })
+}
+
+// 修改用户角色（管理员）
+export const updateUserRole = (id: string | number, role: string) => {
+  return request.put(`/user/${id}/role`, null, { params: { role } })
+}

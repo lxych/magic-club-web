@@ -322,8 +322,16 @@ const handleUpdateAvatar = async () => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding: 24px 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    border-radius: 12px;
+    
+    :deep(.el-avatar) {
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
+      border: 3px solid #fff;
+    }
   }
   
   .profile-info {
@@ -331,20 +339,29 @@ const handleUpdateAvatar = async () => {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid #f0f0f0;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--mc-border-light);
+      transition: background 0.2s;
       
       &:last-child {
         border-bottom: none;
       }
       
+      &:hover {
+        background: rgba(102, 126, 234, 0.02);
+        margin: 0 -16px;
+        padding: 14px 16px;
+        border-radius: 6px;
+      }
+      
       .label {
-        color: #666;
+        color: var(--mc-text-secondary);
         font-size: 14px;
+        font-weight: 500;
       }
       
       .value {
-        color: #333;
+        color: var(--mc-text-primary);
         font-size: 14px;
       }
     }
@@ -359,7 +376,21 @@ const handleUpdateAvatar = async () => {
       border-radius: 50%;
       object-fit: cover;
       margin-bottom: 16px;
-      border: 3px solid #409eff;
+      border: 3px solid var(--mc-primary);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-page .el-row {
+    display: flex;
+    flex-direction: column;
+    
+    .el-col {
+      max-width: 100% !important;
+      flex: 0 0 100% !important;
+      margin-bottom: 16px;
     }
   }
 }

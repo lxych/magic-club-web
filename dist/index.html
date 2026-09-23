@@ -5,8 +5,22 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Magic Club - 魔术社团管理系统</title>
-    <script type="module" crossorigin src="/assets/index-KmYF4DYQ.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-D5zH-bJ2.css">
+    <script>
+      // 暗色模式防闪烁：在页面渲染前检查并应用 dark class
+      (function() {
+        var dark = localStorage.getItem('vueuse-color-scheme');
+        if (dark === 'dark' || (!dark && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+          document.documentElement.style.colorScheme = 'dark';
+        }
+      })();
+    </script>
+    <style>
+      /* 内联暗色样式，确保在 CSS 加载前生效 */
+      html.dark body { background: #0f172a !important; color: #e2e8f0 !important; }
+    </style>
+    <script type="module" crossorigin src="/assets/index-BQkd5zcG.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BS1nbvR8.css">
   </head>
   <body>
     <div id="app"></div>

@@ -370,21 +370,23 @@ onMounted(async () => {
 <style scoped lang="scss">
 .memorial-page {
   .year-section {
-    margin-bottom: 24px;
-    padding: 16px;
-    background: #fff;
-    border-radius: 8px;
+    margin-bottom: 28px;
+    padding: 20px 24px;
+    background: var(--mc-bg-primary);
+    border-radius: var(--mc-radius-md);
+    box-shadow: var(--mc-shadow-sm);
+    border: 1px solid var(--mc-border-light);
     
     .year-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
       
       .year-label {
-        font-size: 16px;
+        font-size: 17px;
         font-weight: 600;
-        color: #333;
+        color: var(--mc-text-primary);
       }
     }
     
@@ -398,53 +400,71 @@ onMounted(async () => {
 
   .memorial-content {
     .year-group {
-      margin-bottom: 32px;
+      margin-bottom: 36px;
       
       .year-title {
-        font-size: 20px;
-        font-weight: 600;
-        color: #667eea;
-        margin: 0 0 16px;
-        padding-bottom: 8px;
-        border-bottom: 2px solid #667eea;
+        font-size: 22px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 0 0 20px;
+        padding-bottom: 12px;
+        border-bottom: 3px solid transparent;
+        border-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 1;
       }
     }
     
     .memorial-card {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateX(4px);
+        box-shadow: var(--mc-shadow-md);
+      }
+      
       .memorial-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
         
         .memorial-title {
           margin: 0;
-          font-size: 16px;
+          font-size: 17px;
           font-weight: 600;
-          color: #1a1a2e;
+          color: var(--mc-text-primary);
           flex: 1;
         }
       }
       
       .memorial-content-text {
         font-size: 14px;
-        line-height: 1.6;
-        color: #333;
-        margin-bottom: 12px;
+        line-height: 1.7;
+        color: var(--mc-text-secondary);
+        margin-bottom: 14px;
         white-space: pre-wrap;
       }
       
       .memorial-images {
         display: flex;
-        gap: 8px;
+        gap: 10px;
         flex-wrap: wrap;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
         
         .memorial-image {
-          width: 120px;
-          height: 120px;
-          border-radius: 4px;
+          width: 130px;
+          height: 130px;
+          border-radius: 8px;
           cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: var(--mc-shadow-sm);
+          
+          &:hover {
+            transform: scale(1.05);
+            box-shadow: var(--mc-shadow-md);
+          }
         }
       }
       
@@ -454,7 +474,7 @@ onMounted(async () => {
         
         .memorial-author {
           font-size: 12px;
-          color: #999;
+          color: var(--mc-text-muted);
         }
       }
     }
@@ -463,7 +483,7 @@ onMounted(async () => {
   .form-tip {
     margin-left: 8px;
     font-size: 12px;
-    color: #999;
+    color: var(--mc-text-muted);
   }
   
   .uploaded-files {

@@ -105,16 +105,19 @@
               </el-descriptions-item>
               <el-descriptions-item label="资源管理">
                 <div class="feature-desc">
-                  <p><strong>上传资源：</strong>仅管理员可上传文件资源，成员只能下载</p>
+                  <p><strong>上传资源：</strong>管理员可直接上传文件资源</p>
+                  <p><strong>资源审批：</strong>在"资源审批"页面审核成员上传的资源，通过/拒绝后成员可见</p>
                   <p><strong>资源分类：</strong>建议按类型分类管理，方便成员查找</p>
                 </div>
               </el-descriptions-item>
-              <el-descriptions-item label="成员管理">
+              <el-descriptions-item label="用户管理">
                 <div class="feature-desc">
+                  <p><strong>查看花名册：</strong>在"花名册"菜单中查看所有成员信息，包括姓名、学号、部门、专业等</p>
+                  <p><strong>注销用户账号：</strong>在花名册中可注销违规用户账号，注销后该账号将无法登录</p>
                   <p><strong>标记毕业：</strong>将毕业成员标记为校友，自动获得 ALUMNI 权限</p>
                   <p><strong>取消毕业：</strong>误标记时可取消毕业状态，恢复为 MEMBER</p>
                   <p><strong>强制下线：</strong>对违规用户强制下线，同时作废当前邀请码</p>
-                  <p class="text-danger">注意：强制下线后，该用户无法登录，需设置新邀请码才能注册新账号</p>
+                  <p class="text-danger">注意：强制下线后该用户无法登录，注销后账号永久禁用；需设置新邀请码才能注册新账号</p>
                 </div>
               </el-descriptions-item>
               <el-descriptions-item label="邀请码管理">
@@ -206,7 +209,8 @@
             <div class="usage-guide">
               <h4>快速操作指南：</h4>
               <ol>
-                <li><strong>处理违规用户：</strong>成员列表 → 找到用户 → 强制下线</li>
+                <li><strong>处理违规用户：</strong>花名册 → 找到用户 → 强制下线或注销</li>
+                <li><strong>审核资源：</strong>资源审批页面 → 审核通过/拒绝</li>
                 <li><strong>更换邀请码：</strong>邀请码管理 → 设置新邀请码</li>
                 <li><strong>维护期间：</strong>开启全员禁言 → 执行维护 → 关闭禁言</li>
                 <li><strong>紧急处理：</strong>作废邀请码 → 开启禁言 → 排查问题</li>
@@ -368,14 +372,15 @@ onMounted(() => {
 
     .invite-code-box {
       margin: 20px 0;
-      padding: 20px;
-      background: #f5f7fa;
-      border-radius: 8px;
+      padding: 24px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.06) 0%, rgba(118, 75, 162, 0.06) 100%);
+      border: 1px solid rgba(102, 126, 234, 0.15);
+      border-radius: 12px;
       text-align: center;
 
       .code-label {
         font-size: 14px;
-        color: #666;
+        color: var(--mc-text-secondary);
         margin-bottom: 12px;
       }
 
@@ -388,61 +393,90 @@ onMounted(() => {
         .el-tag {
           font-size: 24px;
           padding: 12px 24px;
-          font-family: monospace;
+          font-family: var(--mc-font-mono, monospace);
         }
       }
     }
 
+    .invite-actions {
+      margin: 16px 0;
+      display: flex;
+      gap: 12px;
+    }
+
     .usage-guide {
+      margin-top: 16px;
+      padding: 16px;
+      background: var(--mc-bg-tertiary);
+      border-radius: 10px;
+
       h4 {
-        margin: 16px 0 12px;
-        color: #333;
+        margin: 0 0 12px;
+        color: var(--mc-text-primary);
       }
 
       ol {
         padding-left: 20px;
-        color: #666;
+        color: var(--mc-text-secondary);
         line-height: 2;
       }
     }
 
     .maintenance-list {
       padding-left: 20px;
-      color: #666;
+      color: var(--mc-text-secondary);
       line-height: 2;
 
       li {
         margin: 8px 0;
       }
     }
+    
+    .mute-status-box {
+      margin: 16px 0;
+      padding: 16px;
+      background: var(--mc-bg-tertiary);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .mute-actions {
+      margin: 16px 0;
+    }
   }
 
   :deep(.el-collapse-item__header) {
     font-size: 16px;
     padding: 12px 16px;
+    border-radius: 8px;
+  }
+  
+  :deep(.el-collapse-item__wrap) {
+    border-radius: 0 0 8px 8px;
   }
 }
 
-/* 功能描述样式 */
 .feature-desc {
   p {
     margin: 8px 0;
-    line-height: 1.6;
-    color: #333;
+    line-height: 1.7;
+    color: var(--mc-text-primary);
 
     strong {
-      color: #409EFF;
+      color: var(--mc-primary);
       font-weight: 600;
     }
   }
 
   .text-danger {
-    color: #F56C6C;
+    color: var(--mc-danger);
     font-weight: 500;
   }
 
   .text-warning {
-    color: #E6A23C;
+    color: var(--mc-warning);
     font-weight: 500;
   }
 }

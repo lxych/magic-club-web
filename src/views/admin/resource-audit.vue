@@ -33,7 +33,7 @@
         <el-table-column label="审批人" width="90">
           <template #default="{ row }">
             <span v-if="row.auditorName" style="color:#666">{{ row.auditorName }}</span>
-            <span v-else style="color:#ccc">—</span>
+            <span v-else style="color:#ccc">-</span>
           </template>
         </el-table-column>
         <el-table-column label="状态" width="75">
@@ -44,18 +44,11 @@
         <el-table-column label="上传时间" width="150">
           <template #default="{ row }">{{ row.createTime?.slice(0,16).replace('T',' ') }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" width="100" fixed="right">
           <template #default="{ row }">
-            <template v-if="Number(row.status) === 0">
-              <el-button type="success" size="small" @click="handleAudit(row.id,1)">通过</el-button>
-              <el-button type="danger" size="small" @click="handleAudit(row.id,2)">驳回</el-button>
-            </template>
-            <template v-else-if="Number(row.status) === 2">
-              <el-button type="primary" size="small" @click="handleAudit(row.id,0)">重新待审</el-button>
-            </template>
-            <template v-else>
-              <span style="color:#999;font-size:12px">—</span>
-            </template>
+            <el-button type="primary" size="small" v-if="Number(row.status) === 0" @click="openAuditDialog(row)">
+              审批
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -77,7 +70,7 @@
     <el-dialog v-model="previewVisible" :title="previewFile?.originalName" width="70%" top="5vh">
       <template v-if="previewFile">
         <div style="margin-bottom:12px;color:#666">
-          上传者：{{ previewFile.uploaderName }}　｜　分类：{{ previewFile.categoryName }}　｜　{{ previewFile.description }}
+          上传者:{{ previewFile.uploaderName }} | 分类:{{ previewFile.categoryName }} | {{ previewFile.description }}
         </div>
         <!-- 图片 -->
         <div v-if="previewFile.fileType==='IMAGE'" style="text-align:center">
@@ -85,13 +78,58 @@
         </div>
         <!-- 视频 -->
         <div v-else-if="previewFile.fileType==='VIDEO'" style="text-align:center">
-          <video :src="previewSrc" controls style="max-width:100%;max-height:70vh"></video>
+          <video :src="previewSrc" controls controlslist="nodownload" style="max-width:100%;max-height:70vh"></video>
         </div>
         <!-- 文档 -->
         <div v-else style="text-align:center">
           <p style="color:#999;margin-bottom:12px">📄 {{ previewFile.originalName }}</p>
           <iframe :src="'/api/resource/'+previewFile.id+'/preview'" style="width:100%;height:60vh;border:1px solid #eee" />
         </div>
+      </template>
+    </el-dialog>
+
+    <!-- 审批弹窗 -->
+    <el-dialog v-model="auditVisible" title="资源审批" width="700px" top="3vh">
+      <template v-if="auditRow">
+        <!-- 预览区域 -->
+        <div style="text-align:center;margin-bottom:16px;background:#f5f7fa;border-radius:8px;padding:12px">
+          <img v-if="auditRow.fileType==='IMAGE'" :src="'/api/resource/'+auditRow.id+'/preview'" style="max-width:100%;max-height:300px;border-radius:4px" />
+          <video v-else-if="auditRow.fileType==='VIDEO'" :src="'/api/resource/'+auditRow.id+'/preview'" controls controlslist="nodownload" style="max-width:100%;max-height:300px" />
+          <div v-else style="padding:20px;color:#666">📄 {{ auditRow.originalName }}</div>
+        </div>
+        <!-- 信息区域 -->
+        <el-descriptions :column="2" border size="small">
+          <el-descriptions-item label="上传者">{{ auditRow.uploaderName }}</el-descriptions-item>
+          <el-descriptions-item label="文件名">{{ auditRow.originalName }}</el-descriptions-item>
+          <el-descriptions-item label="大小">{{ auditRow.fileSizeFormatted }}</el-descriptions-item>
+          <el-descriptions-item label="类型">{{ typeLabel(auditRow.fileType) }}</el-descriptions-item>
+          <el-descriptions-item label="分类">
+            <el-select v-model="auditCategory" size="small" style="width:150px">
+              <el-option label="社团内部演出" value="INTERNAL_SHOW" />
+              <el-option label="社团内部教学" value="INTERNAL_TEACH" />
+              <el-option label="外部演出" value="EXTERNAL_SHOW" />
+              <el-option label="外部教学" value="EXTERNAL_TEACH" />
+            </el-select>
+          </el-descriptions-item>
+          <el-descriptions-item label="描述" :span="2">{{ auditRow.description || '无' }}</el-descriptions-item>
+        </el-descriptions>
+
+        <!-- 驳回原因 -->
+        <div style="margin-top:16px">
+          <el-form-item label="驳回原因">
+            <el-input
+              v-model="rejectReason"
+              type="textarea"
+              :rows="3"
+              placeholder="驳回时请填写原因（通过则无需填写）"
+            />
+          </el-form-item>
+        </div>
+      </template>
+      <template #footer>
+        <el-button @click="auditVisible = false">取消</el-button>
+        <el-button type="danger" @click="doAudit(2)">驳回</el-button>
+        <el-button type="success" @click="doAudit(1)">通过</el-button>
       </template>
     </el-dialog>
   </div>
@@ -126,7 +164,7 @@ const filterStatus = ref(0)
 
 const previewVisible = ref(false)
 const previewFile = ref<ResourceFile | null>(null)
-const previewSrc = computed(() => 
+const previewSrc = computed(() =>
   previewFile.value ? `/api/resource/${previewFile.value.id}/preview` : ''
 )
 
@@ -164,19 +202,82 @@ const fetchList = async () => {
 
 const onFilterChange = () => { pageNum.value = 1; fetchList() }
 
-const handleAudit = async (id: string, status: number) => {
-  const labels: Record<number,string> = { 0:'重新设为待审批', 1:'通过', 2:'驳回' }
-  try {
-    await ElMessageBox.confirm(`确定${labels[status]}该资源？`, '审批确认', { type: 'warning' })
-    await request.post(`/resource/${id}/audit`, null, { params: { status } })
-    ElMessage.success('操作成功')
-    fetchList()
-  } catch { /* cancel */ }
+// 审批弹窗相关
+const auditVisible = ref(false)
+const auditRow = ref<ResourceFile | null>(null)
+const auditCategory = ref('')
+const rejectReason = ref('')
+
+const openAuditDialog = (row: ResourceFile) => {
+  auditRow.value = row
+  auditCategory.value = row.category || 'INTERNAL_SHOW'
+  rejectReason.value = ''
+  auditVisible.value = true
+}
+
+const doAudit = async (status: number) => {
+  if (!auditRow.value) return
+  const id = auditRow.value.id
+
+  if (status === 1) {
+    // 只有"社团内部演出"允许下载，其他类型一律不允许
+    if (auditCategory.value === 'INTERNAL_SHOW') {
+      try {
+        await ElMessageBox.confirm('是否允许用户下载该资源？', '下载权限设置', {
+          confirmButtonText: '允许',
+          cancelButtonText: '不允许',
+          distinguishCancelAndClose: true,
+          type: 'info'
+        })
+        await request.post(`/resource/${id}/audit`, null, { params: { status: 1, allowDownload: 1, category: auditCategory.value } })
+        ElMessage.success('审核通过（允许下载）')
+      } catch (action: any) {
+        if (action === 'cancel') {
+          await request.post(`/resource/${id}/audit`, null, { params: { status: 1, allowDownload: 0, category: auditCategory.value } })
+          ElMessage.success('审核通过（不允许下载）')
+        } else {
+          return
+        }
+      }
+    } else {
+      // 非内部演出，自动不允许下载
+      await request.post(`/resource/${id}/audit`, null, { params: { status: 1, allowDownload: 0, category: auditCategory.value } })
+      ElMessage.success('审核通过（不允许下载）')
+    }
+  } else {
+    // 驳回 - 必须填写原因
+    if (!rejectReason.value || !rejectReason.value.trim()) {
+      ElMessage.warning('请填写驳回原因')
+      return
+    }
+    await request.post(`/resource/${id}/audit`, null, { params: { status: 2, reason: rejectReason.value.trim(), category: auditCategory.value } })
+    ElMessage.success('已驳回')
+  }
+  auditVisible.value = false
+  fetchList()
 }
 
 onMounted(fetchList)
 </script>
 
 <style scoped lang="scss">
-.title { font-size: 18px; font-weight: 600; }
+.audit-page {
+  .title {
+    font-size: 18px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  :deep(.el-card) {
+    border: 1px solid var(--mc-border-light) !important;
+  }
+
+  :deep(.el-table) {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+}
 </style>

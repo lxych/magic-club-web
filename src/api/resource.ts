@@ -32,12 +32,12 @@ export interface ResourceQuery {
 }
 
 // 上传文件
-export const uploadFile = (file: File, description?: string, category?: string, allowDownload: number = 1) => {
+export const uploadFile = (file: File, description?: string, category?: string, fileName?: string) => {
   const formData = new FormData()
   formData.append('file', file)
   if (description) formData.append('description', description)
   if (category) formData.append('category', category)
-  formData.append('allowDownload', String(allowDownload))
+  if (fileName) formData.append('fileName', fileName)
   return request.post('/resource/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   })
@@ -76,4 +76,20 @@ export const auditResource = (id: number, status: number) => {
 // 获取待审批资源列表
 export const getPendingResources = (params: { pageNum?: number; pageSize?: number }) => {
   return request.get('/resource/pending', { params })
+}
+
+// 获取 STS Token（OSS 直传用）
+export const getOssStsToken = () => {
+  return request.get('/oss/sts-token')
+}
+
+// OSS 直传完成回调 → 创建资源记录
+export const completeOssUpload = (params: {
+  fileName: string
+  ossUrl: string
+  fileSize: number
+  description?: string
+  category?: string
+}) => {
+  return request.post('/resource/oss/complete', null, { params })
 }

@@ -31,23 +31,15 @@ onMounted(() => {
 </template>
 
 <style>
-/* 全局重置 */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 /* 基础字体 */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-  'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--mc-font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #333;
+  color: var(--mc-text-primary);
 }
 
-/* 整体布局（关键） */
+/* 整体布局 */
 .app-container {
   min-height: 100vh;
   display: flex;
@@ -61,12 +53,13 @@ body {
 
 /* Footer 样式 */
 .footer {
-  background: #f9fafc;
-  border-top: 1px solid #eee;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-top: 1px solid var(--mc-border-light);
   text-align: center;
-  padding: 16px 0;
-  font-size: 12px;
-  color: #999;
+  padding: 20px 0;
+  font-size: 13px;
+  color: var(--mc-text-muted);
+  backdrop-filter: blur(10px);
 }
 
 /* 内容横排 */
@@ -74,21 +67,23 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 /* 分隔符 */
 .footer .divider {
-  color: #ccc;
+  color: var(--mc-border);
 }
 
 /* 链接样式 */
 .footer a {
-  color: #999;
+  color: var(--mc-text-muted);
   text-decoration: none;
+  transition: color var(--mc-transition-fast);
 }
 
 .footer a:hover {
-  color: #667eea;
+  color: var(--mc-primary);
+  text-decoration: underline;
 }
 </style>

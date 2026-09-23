@@ -47,7 +47,7 @@
       <el-col :span="6">
         <el-card class="action-card" shadow="hover" @click="$router.push('/alumni')">
           <el-icon size="32"><UserFilled /></el-icon>
-          <span>毕业成员</span>
+          <span>花名册</span>
         </el-card>
       </el-col>
     </el-row>
@@ -165,7 +165,13 @@ onMounted(() => {
 <style scoped lang="scss">
 .dashboard {
   .welcome-card {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+    border: 1px solid rgba(102, 126, 234, 0.15) !important;
+    
+    :deep(.el-card__body) {
+      padding: 28px 32px !important;
+    }
     
     .welcome-content {
       display: flex;
@@ -175,33 +181,52 @@ onMounted(() => {
       .welcome-text {
         h2 {
           margin: 0 0 8px;
-          font-size: 24px;
-          color: #1a1a2e;
+          font-size: 26px;
+          font-weight: 700;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
         
         p {
           margin: 0;
-          color: #666;
+          color: var(--mc-text-secondary);
+          font-size: 14px;
         }
       }
       
       .welcome-stats {
         display: flex;
-        gap: 40px;
+        gap: 48px;
         
         .stat-item {
           text-align: center;
+          padding: 16px 24px;
+          background: rgba(255, 255, 255, 0.8);
+          border-radius: 12px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          transition: all 0.3s ease;
+          
+          &:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.15);
+          }
           
           .stat-value {
             font-size: 32px;
-            font-weight: 600;
-            color: #667eea;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
           }
           
           .stat-label {
-            font-size: 14px;
-            color: #666;
-            margin-top: 4px;
+            font-size: 13px;
+            color: var(--mc-text-secondary);
+            margin-top: 6px;
+            font-weight: 500;
           }
         }
       }
@@ -209,29 +234,58 @@ onMounted(() => {
   }
   
   .quick-actions {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    
+    :deep(.el-col) {
+      animation: fadeInUp 0.5s ease forwards;
+      opacity: 0;
+      
+      &:nth-child(1) { animation-delay: 0.1s; }
+      &:nth-child(2) { animation-delay: 0.2s; }
+      &:nth-child(3) { animation-delay: 0.3s; }
+      &:nth-child(4) { animation-delay: 0.4s; }
+    }
     
     .action-card {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 32px 24px;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.3s ease;
+      background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+      border: 1px solid var(--mc-border-light);
       
       &:hover {
-        transform: translateY(-4px);
+        transform: translateY(-6px);
+        box-shadow: 0 12px 24px rgba(102, 126, 234, 0.15);
+        border-color: rgba(102, 126, 234, 0.3);
       }
       
-      .el-icon {
-        color: #667eea;
-        margin-bottom: 12px;
+      :deep(.el-icon) {
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        color: var(--mc-primary);
+        margin-bottom: 16px;
+        transition: all 0.3s ease;
+      }
+      
+      &:hover :deep(.el-icon) {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        transform: scale(1.1);
       }
       
       span {
-        font-size: 14px;
-        color: #333;
+        font-size: 15px;
+        color: var(--mc-text-primary);
+        font-weight: 500;
       }
     }
   }
@@ -241,17 +295,25 @@ onMounted(() => {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-weight: 600;
+      
+      :deep(.el-link) {
+        font-weight: 500;
+      }
     }
     
     .post-list {
       .post-item {
-        padding: 12px 0;
-        border-bottom: 1px solid #f0f0f0;
+        padding: 14px 12px;
+        border-bottom: 1px solid var(--mc-border-light);
         cursor: pointer;
-        transition: background 0.2s;
+        transition: all 0.2s ease;
+        border-radius: 8px;
+        margin: 0 -12px;
         
         &:hover {
-          background: #f5f7fa;
+          background: rgba(102, 126, 234, 0.04);
+          transform: translateX(4px);
         }
         
         &:last-child {
@@ -260,16 +322,17 @@ onMounted(() => {
         
         .post-title {
           font-size: 14px;
-          color: #333;
+          color: var(--mc-text-primary);
           margin-bottom: 8px;
           display: flex;
           align-items: center;
           gap: 8px;
+          font-weight: 500;
         }
         
         .post-meta {
           font-size: 12px;
-          color: #999;
+          color: var(--mc-text-muted);
           display: flex;
           gap: 16px;
           align-items: center;
@@ -279,11 +342,18 @@ onMounted(() => {
     
     .resource-list {
       .resource-item {
-        padding: 12px 0;
-        border-bottom: 1px solid #f0f0f0;
+        padding: 14px 12px;
+        border-bottom: 1px solid var(--mc-border-light);
         display: flex;
         justify-content: space-between;
         align-items: center;
+        transition: all 0.2s ease;
+        border-radius: 8px;
+        margin: 0 -12px;
+        
+        &:hover {
+          background: rgba(102, 126, 234, 0.04);
+        }
         
         &:last-child {
           border-bottom: none;
@@ -292,21 +362,60 @@ onMounted(() => {
         .resource-info {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 12px;
+          
+          :deep(.el-icon) {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            color: var(--mc-primary);
+          }
           
           .resource-name {
             font-size: 14px;
-            color: #333;
+            color: var(--mc-text-primary);
+            font-weight: 500;
           }
         }
         
         .resource-meta {
           font-size: 12px;
-          color: #999;
+          color: var(--mc-text-muted);
           display: flex;
           gap: 16px;
         }
       }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-row {
+    .el-col {
+      margin-bottom: 12px;
+    }
+  }
+  
+  .welcome-content {
+    flex-direction: column;
+    gap: 24px;
+    
+    .welcome-stats {
+      gap: 16px;
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  .latest-section {
+    .el-col {
+      max-width: 100%;
+      flex: 0 0 100%;
+      margin-bottom: 16px;
     }
   }
 }

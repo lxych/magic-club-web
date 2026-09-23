@@ -118,11 +118,25 @@
                     prefix-icon="UserFilled" 
                   />
                 </el-form-item>
+                <el-form-item prop="nickname">
+                  <el-input 
+                    v-model="registerForm.nickname" 
+                    placeholder="昵称（选填，设置后将以昵称显示）" 
+                    prefix-icon="User" 
+                  />
+                </el-form-item>
                 <el-form-item prop="studentNo">
                   <el-input 
                     v-model="registerForm.studentNo" 
                     placeholder="学号" 
                     prefix-icon="Document" 
+                  />
+                </el-form-item>
+                <el-form-item prop="inviteCode">
+                  <el-input 
+                    v-model="registerForm.inviteCode" 
+                    placeholder="邀请码（必填）" 
+                    prefix-icon="Key" 
                   />
                 </el-form-item>
                 <el-form-item>
@@ -153,7 +167,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { register as registerApi } from '@/api/user'
-import { User, Lock, Plus, UserFilled, Document } from '@element-plus/icons-vue'
+import { User, Lock, Plus, UserFilled, Document, Key } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -180,7 +194,9 @@ const registerForm = reactive({
   password: '',
   confirmPassword: '',
   realName: '',
-  studentNo: ''
+  nickname: '',
+  studentNo: '',
+  inviteCode: ''
 })
 
 const validateConfirmPassword = (_rule: any, value: string, callback: Function) => {
@@ -199,7 +215,8 @@ const registerRules = {
     { validator: validateConfirmPassword, trigger: 'blur' }
   ],
   realName: [{ required: true, message: '请输入真实姓名', trigger: 'blur' }],
-  studentNo: [{ required: true, message: '请输入学号', trigger: 'blur' }]
+  studentNo: [{ required: true, message: '请输入学号', trigger: 'blur' }],
+  inviteCode: [{ required: true, message: '请输入邀请码', trigger: 'blur' }]
 }
 
 const flipToLogin = () => {
@@ -246,14 +263,47 @@ const handleRegister = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
   padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 背景装饰粒子 */
+.auth-page::before,
+.auth-page::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.1;
+  animation: float 6s ease-in-out infinite;
+}
+
+.auth-page::before {
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  top: -100px;
+  right: -100px;
+}
+
+.auth-page::after {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, #f6d365, #fda085);
+  bottom: -80px;
+  left: -80px;
+  animation-delay: 3s;
 }
 
 .cards-container {
   display: flex;
-  gap: 40px;
+  gap: 48px;
   perspective: 1200px;
+  position: relative;
+  z-index: 1;
 }
 
 .card-wrapper {
@@ -274,8 +324,8 @@ const handleRegister = async () => {
   position: relative;
   transform-style: preserve-3d;
   transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
 }
 
 .card-face {
@@ -283,7 +333,7 @@ const handleRegister = async () => {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
 }
 
@@ -292,6 +342,7 @@ const handleRegister = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   
   .card-content {
     text-align: center;
@@ -301,16 +352,19 @@ const handleRegister = async () => {
     .card-icon {
       margin-bottom: 24px;
       color: white;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+      animation: float 3s ease-in-out infinite;
     }
     
     .card-title {
       font-size: 32px;
-      margin: 0 0 16px;
-      font-weight: 600;
+      margin: 0 0 12px;
+      font-weight: 700;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
     
     .card-desc {
-      font-size: 16px;
+      font-size: 15px;
       opacity: 0.9;
       margin: 0;
     }
@@ -318,42 +372,74 @@ const handleRegister = async () => {
 }
 
 .card-back {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   transform: rotateY(180deg);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   
   .form-content {
-    padding: 40px;
+    padding: 36px;
     height: 100%;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     
     .form-title {
       text-align: center;
-      margin: 0 0 24px;
-      font-size: 24px;
-      color: #333;
+      margin: 0 0 20px;
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     
-    .el-form {
-      flex: 1;
+    :deep(.el-form-item) {
+      margin-bottom: 18px;
+    }
+    
+    :deep(.el-input__wrapper) {
+      padding: 8px 16px;
+      border-radius: 10px;
+      box-shadow: 0 0 0 1px var(--mc-border) inset !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    :deep(.el-input__wrapper.is-focus) {
+      box-shadow: 0 0 0 1px var(--mc-primary) inset, 0 0 12px rgba(102, 126, 234, 0.15) !important;
     }
     
     .submit-btn {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       font-size: 16px;
+      font-weight: 600;
+      border-radius: 10px !important;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+      }
     }
     
     .switch-tip {
       text-align: center;
-      margin: 16px 0 0;
+      margin: 12px 0 0;
       font-size: 14px;
-      color: #666;
+      color: var(--mc-text-secondary);
       
       .switch-link {
-        color: #667eea;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         cursor: pointer;
-        font-weight: 500;
+        font-weight: 600;
         
         &:hover {
           text-decoration: underline;
@@ -367,7 +453,7 @@ const handleRegister = async () => {
 .card-wrapper:not(.flipped):hover {
   .card {
     transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 30px 80px rgba(102, 126, 234, 0.3);
   }
 }
 
@@ -387,6 +473,40 @@ const handleRegister = async () => {
   .card-wrapper {
     width: 320px;
     height: 440px;
+  }
+}
+
+/* 手机端 */
+@media (max-width: 480px) {
+  .auth-page {
+    padding: 12px;
+  }
+  
+  .auth-page::before,
+  .auth-page::after {
+    display: none;
+  }
+  
+  .cards-container {
+    gap: 16px;
+    align-items: center;
+  }
+  
+  .card-wrapper {
+    width: calc(100vw - 32px);
+    max-width: 360px;
+    height: 460px;
+  }
+  
+  .card-back .form-content {
+    padding: 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    
+    .form-title {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
   }
 }
 </style>

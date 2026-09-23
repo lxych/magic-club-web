@@ -1,7 +1,10 @@
 <template>
   <el-container class="main-layout">
+    <!-- 移动端遮罩 -->
+    <div v-if="mobileMenuOpen" class="mobile-overlay" @click="mobileMenuOpen = false" />
+    
     <!-- 侧边栏 -->
-    <el-aside width="220px" class="sidebar">
+    <el-aside width="220px" class="sidebar" :class="{ 'sidebar-open': mobileMenuOpen }">
       <div class="logo">
         <el-icon size="32"><MagicStick /></el-icon>
         <span class="logo-text">Magic Club</span>
@@ -13,6 +16,7 @@
         background-color="#1a1a2e"
         text-color="#b8b9c0"
         active-text-color="#fff"
+        @select="mobileMenuOpen = false"
       >
         <el-menu-item
           v-for="item in menuItems"
@@ -32,10 +36,28 @@
     <el-container class="main-container">
       <!-- 顶部导航 -->
       <el-header class="header">
+        <div class="header-left">
+          <span class="header-brand" @click="mobileMenuOpen = !mobileMenuOpen">🎩</span>
+        </div>
         <div class="header-right">
+          <!-- 消息中心铃铛 -->
+          <el-badge v-if="unreadCount > 0" is-dot class="notification-bell">
+            <el-button type="primary" link @click="router.push('/notifications')" class="bell-btn">
+              <el-icon :size="20"><Bell /></el-icon>
+            </el-button>
+          </el-badge>
+          <el-button v-else type="primary" link @click="router.push('/notifications')" class="bell-btn">
+            <el-icon :size="20"><Bell /></el-icon>
+          </el-button>
+          <el-button type="primary" link @click="toggleDark()" class="bell-btn" :title="isDark ? '切换浅色模式' : '切换暗色模式'">
+            <el-icon :size="20"><component :is="isDark ? Sunny : Moon" /></el-icon>
+          </el-button>
           <el-dropdown @command="handleCommand">
             <span class="user-info">
-              <el-avatar :size="32" :src="userStore.userInfo?.avatar" />
+              <router-link v-if="userStore.userInfo?.id" :to="`/user/${userStore.userInfo.id}`" class="avatar-link">
+                <el-avatar :size="32" :src="userStore.userInfo?.avatar" />
+              </router-link>
+              <el-avatar v-else :size="32" />
               <span class="username">{{ userStore.userInfo?.realName || userStore.userInfo?.username }}</span>
               <el-icon><ArrowDown /></el-icon>
             </span>
@@ -55,16 +77,21 @@
 
       <!-- 页面内容 -->
       <el-main class="main-content">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <transition name="page-fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useDark, useToggle } from '@vueuse/core'
 import {
   Home,
   ChatDotRound,
@@ -76,17 +103,80 @@ import {
   SwitchButton,
   MagicStick,
   Document,
-  Checked
+  Checked,
+  Bell,
+  Message,
+  Moon,
+  Sunny,
+  List,
+  Lock
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
+const mobileMenuOpen = ref(false)
+
+// 权限：直接从 localStorage 同步读取（在 computed 执行前就有值）
+const localPerms = ref<string[]>((() => {
+  try {
+    const stored = localStorage.getItem('permissions')
+    return stored ? JSON.parse(stored) : []
+  } catch { return [] }
+})())
+
+// 暗色模式
+const isDark = useDark()
+const toggleDark = useToggle(isDark)
+
+// 未读消息数
+const unreadCount = ref(0)
+
+const fetchUnreadCount = async () => {
+  const token = localStorage.getItem('token')
+  if (!token) return
+  try {
+    const res = await fetch('/api/notification/unread-count', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    const data = await res.json()
+    unreadCount.value = data.data || 0
+  } catch {
+    // ignore
+  }
+}
+
+// 路由变化时刷新未读数
+import { watch } from 'vue'
+watch(() => route.path, () => {
+  fetchUnreadCount()
+})
+
+// 初始加载时获取未读数，且每30秒轮询一次
+import { onMounted, onUnmounted } from 'vue'
+onMounted(() => {
+  fetchUnreadCount()
+  const timer = setInterval(fetchUnreadCount, 30000)
+  onUnmounted(() => {
+    clearInterval(timer)
+  })
+})
+
 const menuItems = computed(() => {
   const routes = router.getRoutes().find(r => r.name === 'Layout')?.children || []
   return routes
-    .filter(r => !r.meta?.hidden && !(r.meta?.adminOnly && userStore.userInfo?.role !== 'ADMIN'))
+    .filter(r => {
+      if (r.meta?.hidden) return false
+      // 检查 adminOnly
+      if (r.meta?.adminOnly && userStore.userInfo?.role !== 'ADMIN') return false
+      // 检查 requiredPermission
+      if (r.meta?.requiredPermission) {
+        const perm = r.meta.requiredPermission as string
+        if (!localPerms.value.includes(perm)) return false
+      }
+      return true
+    })
     .map(r => ({
       path: `/${r.path}`,
       title: r.meta?.title as string,
@@ -110,77 +200,194 @@ const handleCommand = (command: string) => {
   height: 100vh;
   
   .sidebar {
-    background: #1a1a2e;
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    z-index: 100;
+    transition: transform 0.3s ease;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
     
     .logo {
-      height: 60px;
+      height: 70px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
       color: #fff;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+      
+      .el-icon {
+        color: var(--mc-accent);
+        filter: drop-shadow(0 0 8px rgba(246, 211, 101, 0.4));
+      }
       
       .logo-text {
-        font-size: 18px;
-        font-weight: 600;
+        font-size: 20px;
+        font-weight: 700;
         letter-spacing: 1px;
+        background: linear-gradient(135deg, #fff 0%, #e0e0ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
     }
     
     .sidebar-menu {
       border-right: none;
+      padding: 12px 8px;
       
       :deep(.el-menu-item) {
         height: 50px;
         line-height: 50px;
+        margin-bottom: 4px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
         
         &:hover {
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(102, 126, 234, 0.15);
+          color: #fff;
         }
         
         &.is-active {
-          background: #667eea;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: #fff;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+          font-weight: 600;
         }
       }
     }
   }
   
   .main-container {
-    background: #f5f7fa;
+    background: var(--mc-bg-secondary);
     
     .header {
-      background: #fff;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
-      justify-content: flex-end;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      border-bottom: 1px solid var(--mc-border-light);
+      padding: 0 24px;
+      
+      .header-left {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        
+        .header-brand {
+          font-size: 18px;
+        }
+      }
       
       .header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .notification-bell {
+          margin-right: 4px;
+
+          .bell-btn {
+            padding: 6px;
+            color: var(--mc-text-secondary);
+            font-size: 20px;
+            transition: all 0.2s ease;
+
+            &:hover {
+              color: var(--mc-primary);
+              background: rgba(102, 126, 234, 0.1);
+              border-radius: 50%;
+            }
+          }
+        }
+
+        .hamburger {
+          display: none !important;
+        }
+
         .user-info {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
           cursor: pointer;
-          padding: 4px 8px;
-          border-radius: 4px;
-          transition: background 0.2s;
+          padding: 6px 12px;
+          border-radius: 20px;
+          transition: all 0.3s ease;
+          background: var(--mc-bg-tertiary);
           
           &:hover {
-            background: #f5f7fa;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+          }
+          
+          .avatar-link {
+            display: flex;
+            align-items: center;
           }
           
           .username {
             font-size: 14px;
-            color: #333;
+            color: var(--mc-text-primary);
+            font-weight: 500;
           }
         }
       }
     }
     
     .main-content {
-      padding: 20px;
+      padding: 24px;
       overflow-y: auto;
+    }
+  }
+}
+</style>
+
+<style>
+/* 移动端布局 - 非 scoped 确保生效 */
+@media (max-width: 768px) {
+  .main-layout .sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    z-index: 100 !important;
+    transform: translateX(-100%) !important;
+  }
+  
+  .main-layout .sidebar.sidebar-open {
+    transform: translateX(0) !important;
+  }
+  
+  .main-layout .header-left {
+    display: flex !important;
+    align-items: center;
+  }
+  
+  .main-layout .header-brand {
+    cursor: pointer;
+    font-size: 22px;
+  }
+  
+  .main-layout .hamburger {
+    display: inline-flex !important;
+  }
+  
+  .main-layout .main-content {
+    padding: 12px !important;
+  }
+}
+
+/* 暗色模式全局调整 */
+html.dark {
+  .main-layout {
+    .main-container {
+      background: #141414;
+      
+      .header {
+        background: rgba(20, 20, 20, 0.95);
+        border-bottom-color: rgba(255, 255, 255, 0.06);
+      }
     }
   }
 }

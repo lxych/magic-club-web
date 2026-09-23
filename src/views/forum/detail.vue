@@ -6,7 +6,9 @@
         <h1 class="post-title">{{ post.title }}</h1>
         <div class="post-meta">
           <span class="author">
-            <el-avatar :size="32" :src="post.authorAvatar" />
+            <router-link :to="`/user/${post.userId}`" class="avatar-link">
+              <el-avatar :size="32" :src="post.authorAvatar" />
+            </router-link>
             {{ post.authorName }}
           </span>
           <el-tag size="small">{{ post.categoryName || post.category }}</el-tag>
@@ -83,7 +85,9 @@
         <div v-for="reply in rootReplies" :key="reply.id" class="reply-item">
           <div class="reply-main">
             <div class="reply-author">
-              <el-avatar :size="36" :src="reply.authorAvatar" />
+              <router-link :to="`/user/${reply.userId}`" class="avatar-link">
+                <el-avatar :size="36" :src="reply.authorAvatar" />
+              </router-link>
               <div class="reply-info">
                 <span class="reply-name">{{ reply.authorName }}</span>
                 <span class="reply-time">{{ formatTime(reply.createTime) }}</span>
@@ -128,7 +132,9 @@
               class="child-reply-item"
             >
               <div class="reply-author">
-                <el-avatar :size="28" :src="child.authorAvatar" />
+                <router-link :to="`/user/${child.userId}`" class="avatar-link">
+                  <el-avatar :size="28" :src="child.authorAvatar" />
+                </router-link>
                 <div class="reply-info">
                   <span class="reply-name">{{ child.authorName }}</span>
                   <span class="reply-time">{{ formatTime(child.createTime) }}</span>
@@ -406,36 +412,49 @@ watch(() => route.params.id, () => {
 
 <style scoped lang="scss">
 .post-detail {
+  max-width: 900px;
+  margin: 0 auto;
+  
   .post-header {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--mc-border-light);
     
     .post-title {
-      margin: 0 0 16px;
-      font-size: 22px;
-      font-weight: 600;
-      color: #1a1a2e;
+      margin: 0 0 20px;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--mc-text-primary);
+      line-height: 1.4;
     }
     
     .post-meta {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 20px;
       font-size: 14px;
-      color: #666;
+      color: var(--mc-text-secondary);
+      flex-wrap: wrap;
       
       .author {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+
+        .avatar-link {
+          display: flex;
+          align-items: center;
+        }
       }
       
       .stats {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 16px;
+        margin-left: auto;
         
         .el-icon {
-          margin-right: 2px;
+          margin-right: 4px;
         }
       }
     }
@@ -443,34 +462,51 @@ watch(() => route.params.id, () => {
   
   .post-content {
     font-size: 15px;
-    line-height: 1.8;
-    color: #333;
-    padding: 20px 0;
-    border-bottom: 1px solid #f0f0f0;
+    line-height: 1.9;
+    color: var(--mc-text-primary);
+    padding: 24px 0;
+    border-bottom: 1px solid var(--mc-border-light);
     white-space: pre-wrap;
+    
+    :deep(img) {
+      border-radius: 10px;
+      box-shadow: var(--mc-shadow-md);
+      margin: 12px 0;
+    }
   }
   
   .post-actions {
     display: flex;
     gap: 12px;
-    margin-top: 20px;
+    margin-top: 24px;
+    flex-wrap: wrap;
   }
   
   .reply-section {
-    margin-top: 20px;
+    margin-top: 24px;
+    
+    :deep(.el-card__header) {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    }
     
     .reply-header {
       font-weight: 600;
+      font-size: 16px;
     }
     
     .reply-input-box {
       display: flex;
       flex-direction: column;
       gap: 12px;
-      margin-bottom: 24px;
-      padding: 16px;
-      background: #f5f7fa;
-      border-radius: 8px;
+      margin-bottom: 28px;
+      padding: 20px;
+      background: var(--mc-bg-tertiary);
+      border-radius: 12px;
+      border: 1px solid var(--mc-border-light);
+      
+      :deep(.el-textarea__inner) {
+        border-radius: 8px;
+      }
       
       .reply-actions {
         display: flex;
@@ -480,24 +516,24 @@ watch(() => route.params.id, () => {
     }
     
     .inline-reply-input {
-      margin: 12px 0 12px 48px;
-      padding: 12px;
-      background: #f0f5ff;
-      border-radius: 8px;
-      border: 1px solid #d6e4ff;
+      margin: 16px 0 16px 52px;
+      padding: 16px;
+      background: rgba(102, 126, 234, 0.04);
+      border-radius: 10px;
+      border: 1px solid rgba(102, 126, 234, 0.15);
       
       .reply-actions {
         display: flex;
         justify-content: flex-end;
         gap: 12px;
-        margin-top: 8px;
+        margin-top: 12px;
       }
     }
     
     .reply-list {
       .reply-item {
-        padding: 16px 0;
-        border-bottom: 1px solid #f0f0f0;
+        padding: 20px 0;
+        border-bottom: 1px solid var(--mc-border-light);
         
         &:last-child {
           border-bottom: none;
@@ -507,78 +543,81 @@ watch(() => route.params.id, () => {
           .reply-author {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
+            gap: 14px;
+            margin-bottom: 14px;
             
             .reply-info {
               display: flex;
               flex-direction: column;
               
               .reply-name {
-                font-size: 14px;
-                font-weight: 500;
-                color: #333;
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--mc-text-primary);
               }
               
               .reply-time {
                 font-size: 12px;
-                color: #999;
+                color: var(--mc-text-muted);
+                margin-top: 2px;
               }
             }
           }
           
           .reply-content {
             font-size: 14px;
-            color: #333;
-            line-height: 1.6;
-            margin-bottom: 8px;
+            color: var(--mc-text-primary);
+            line-height: 1.7;
+            margin-bottom: 10px;
           }
           
           .reply-actions-bar {
-            margin-top: 8px;
+            margin-top: 10px;
           }
         }
         
         .child-replies {
-          margin-top: 12px;
-          margin-left: 48px;
-          padding-left: 16px;
-          border-left: 2px solid #e0e0e0;
+          margin-top: 16px;
+          margin-left: 52px;
+          padding-left: 20px;
+          border-left: 3px solid rgba(102, 126, 234, 0.2);
           
           .child-reply-item {
-            padding: 12px 0;
+            padding: 14px 0;
             
             .reply-author {
               display: flex;
               align-items: center;
-              gap: 8px;
-              margin-bottom: 8px;
+              gap: 10px;
+              margin-bottom: 10px;
               
               .reply-info {
                 display: flex;
                 flex-direction: column;
                 
                 .reply-name {
-                  font-size: 13px;
-                  font-weight: 500;
-                  color: #333;
+                  font-size: 14px;
+                  font-weight: 600;
+                  color: var(--mc-text-primary);
                 }
                 
                 .reply-time {
                   font-size: 11px;
-                  color: #999;
+                  color: var(--mc-text-muted);
+                  margin-top: 2px;
                 }
               }
             }
             
             .reply-content {
-              font-size: 13px;
-              color: #333;
-              line-height: 1.5;
+              font-size: 14px;
+              color: var(--mc-text-primary);
+              line-height: 1.6;
               
               .reply-to {
-                color: #667eea;
-                margin-right: 4px;
+                color: var(--mc-primary);
+                margin-right: 6px;
+                font-weight: 500;
               }
             }
           }
@@ -596,12 +635,30 @@ watch(() => route.params.id, () => {
     font-size: 22px;
     cursor: pointer;
     padding: 4px;
-    border-radius: 4px;
-    &:hover { background: #e8f0fe; }
+    border-radius: 6px;
+    transition: all 0.2s;
+    &:hover { background: rgba(102, 126, 234, 0.1); transform: scale(1.2); }
   }
 }
 
 .reply-toolbar {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .post-detail {
+    .post-header .post-title {
+      font-size: 20px;
+    }
+    
+    .post-meta {
+      gap: 12px;
+    }
+    
+    .reply-list .reply-item .child-replies {
+      margin-left: 36px;
+      padding-left: 12px;
+    }
+  }
 }
 </style>
