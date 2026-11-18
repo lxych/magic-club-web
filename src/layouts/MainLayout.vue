@@ -217,6 +217,31 @@ const handleCommand = (command: string) => {
 </script>
 
 <style scoped lang="scss">
+/* 移动端侧边栏遮罩：点击空白处收起菜单
+ * 之前模板里用了 .mobile-overlay 但没写样式，元素尺寸为 0，点了没反应 */
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99; /* 必须低于 .sidebar 的 100，否则会挡住菜单本身 */
+  background: rgba(0, 0, 0, 0.45);
+  animation: overlay-fade-in 0.2s ease;
+  /* 保证在部分浏览器上能接收点击（而不是穿透） */
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes overlay-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 桌面端不存在抽屉，遮罩不需要出现 */
+@media (min-width: 769px) {
+  .mobile-overlay {
+    display: none;
+  }
+}
+
 .main-layout {
   height: 100vh;
   
