@@ -194,7 +194,7 @@ const fetchPosts = async () => {
   try {
     const res = await getPostList(query)
     posts.value = res.records || []
-    total.value = res.total || 0
+    total.value = Number(res.total) || 0
   } finally {
     loading.value = false
   }

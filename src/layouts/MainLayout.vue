@@ -118,6 +118,14 @@ const userStore = useUserStore()
 
 const mobileMenuOpen = ref(false)
 
+// 移动端展开菜单时锁定页面滚动，避免背景跟着滑动
+watch(mobileMenuOpen, (open) => {
+  document.body.style.overflow = open ? 'hidden' : ''
+})
+onUnmounted(() => {
+  document.body.style.overflow = ''
+})
+
 // 权限：直接从 localStorage 同步读取（在 computed 执行前就有值）
 const localPerms = ref<string[]>((() => {
   try {
@@ -217,9 +225,15 @@ const handleCommand = (command: string) => {
     z-index: 100;
     transition: transform 0.3s ease;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
-    
+    /* 侧边栏自身不随页面滚动，菜单区独立滚动 */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+
     .logo {
       height: 70px;
+      flex: 0 0 auto;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -227,12 +241,12 @@ const handleCommand = (command: string) => {
       color: #fff;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
-      
+
       .el-icon {
         color: var(--mc-accent);
         filter: drop-shadow(0 0 8px rgba(246, 211, 101, 0.4));
       }
-      
+
       .logo-text {
         font-size: 20px;
         font-weight: 700;
@@ -243,10 +257,22 @@ const handleCommand = (command: string) => {
         background-clip: text;
       }
     }
-    
+
     .sidebar-menu {
       border-right: none;
       padding: 12px 8px;
+      /* 菜单过长时内部滚动，不撑破布局 */
+      flex: 1 1 auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+
+      &::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+      }
       
       :deep(.el-menu-item) {
         height: 50px;

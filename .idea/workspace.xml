@@ -1,59 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2fb70c83-e242-4e3f-9f6f-75d9b1898bc3" name="更改" comment="v1.0">
+    <list default="true" id="2fb70c83-e242-4e3f-9f6f-75d9b1898bc3" name="更改" comment="v2.0">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist.zip" beforeDir="false" afterPath="$PROJECT_DIR$/dist.zip" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/404-2dEcy4SF.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/MainLayout-LPSaJaMh.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/MainLayout-fMTqeeAT.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/alumni-D0bdmIwK.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/alumni-vdz8QLcy.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/auth-BYohT-TC.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/auth-CWgWrkc6.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/detail-BIwNLybF.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/detail-Bv8c4eZD.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/forum-C7qhlWed.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/guide-DjQp_wRF.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/guide-DvMcFqDc.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/index-BXRgcPMx.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/index-Bfan-ufz.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/index-CLBNNsBG.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/index-D5zH-bJ2.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/index-DclyREru.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/index-DezLJtvQ.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/index-GNpC7N2Y.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/index-KmYF4DYQ.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/index-MTrs9TBw.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/index-YZKaChox.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/inviteCode-CyR40Kky.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/profile-CyyUXMnG.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/profile-DO6an6HB.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/resource-Zv2WHF98.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/resource-audit-BMIa_7WE.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/resource-audit-DrzR_SfT.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/dist/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/resource.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/resource.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/@element-plus_icons-vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.vite/deps/@element-plus_icons-vue.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/_metadata.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.vite/deps/_metadata.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/axios.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.vite/deps/axios.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/chunk-G3PMV62Z.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/chunk-G3PMV62Z.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/chunk-QZC7O2C6.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/chunk-QZC7O2C6.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/dayjs.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.vite/deps/dayjs.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/element-plus.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.vite/deps/element-plus.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/element-plus.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.vite/deps/element-plus.js.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/element-plus_dist_locale_zh-cn__mjs.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.vite/deps/element-plus_dist_locale_zh-cn__mjs.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/pinia.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.vite/deps/pinia.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/vue-router.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.vite/deps/vue-router.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.vite/deps/vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.vite/deps/vue.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/user.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/user.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/MainLayout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/MainLayout.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/router/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/router/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/stores/user.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/stores/user.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/admin/guide.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/admin/guide.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/admin/resource-audit.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/admin/resource-audit.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/dashboard/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/dashboard/index.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/views/forum/detail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/forum/detail.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/forum/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/forum/index.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/views/login/auth.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/login/auth.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/memorial/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/memorial/index.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/views/resource/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/resource/index.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/user/alumni.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/user/alumni.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/user/profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/user/profile.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,6 +73,14 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="magic-club-web" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -131,7 +111,11 @@
       <workItem from="1788492315331" duration="593000" />
       <workItem from="1789349322490" duration="594000" />
       <workItem from="1789435259701" duration="594000" />
-      <workItem from="1789721581720" duration="595000" />
+      <workItem from="1789721581720" duration="645000" />
+      <workItem from="1790670158575" duration="594000" />
+      <workItem from="1791422631145" duration="594000" />
+      <workItem from="1794989211441" duration="519000" />
+      <workItem from="1794992002945" duration="1910000" />
     </task>
     <task id="LOCAL-00001" summary="v1.0">
       <option name="closed" value="true" />
@@ -141,7 +125,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776648956686</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="v1.0">
+      <option name="closed" value="true" />
+      <created>1790127725484</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1790127725484</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -160,6 +152,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="v1.0" />
-    <option name="LAST_COMMIT_MESSAGE" value="v1.0" />
+    <MESSAGE value="v2.0" />
+    <option name="LAST_COMMIT_MESSAGE" value="v2.0" />
   </component>
 </project>

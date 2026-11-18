@@ -369,7 +369,7 @@ const searchUsers = async () => {
       const start = (pageNum.value - 1) * pageSize.value
       records = allFiltered.slice(start, start + pageSize.value)
     } else {
-      total.value = res.total || 0
+      total.value = Number(res.total) || 0
     }
     
     userList.value = records

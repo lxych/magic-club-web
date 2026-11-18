@@ -290,7 +290,7 @@ const fetchResources = async () => {
   try {
     const res = await getResourceList(query)
     resources.value = res.records || []
-    total.value = res.total || 0
+    total.value = Number(res.total) || 0
   } finally {
     loading.value = false
   }

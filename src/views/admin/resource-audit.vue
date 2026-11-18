@@ -194,7 +194,7 @@ const fetchList = async () => {
       params: { pageNum: pageNum.value, pageSize: pageSize.value }
     })
     tableData.value = res.records || []
-    total.value = res.total || 0
+    total.value = Number(res.total) || 0
   } finally {
     loading.value = false
   }
