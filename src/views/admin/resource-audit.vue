@@ -12,6 +12,32 @@
         </div>
       </template>
 
+      <!-- 移动端：卡片列表 -->
+      <div v-if="isMobile" v-loading="loading" class="mobile-cards">
+        <div v-for="row in tableData" :key="row.id" class="m-card">
+          <div class="m-card__head">
+            <span class="m-card__title">{{ row.originalName }}</span>
+            <el-tag :type="statusTag(row.status)" size="small">{{ statusLabel(row.status) }}</el-tag>
+          </div>
+          <div class="m-card__meta">
+            <el-tag size="small">{{ typeLabel(row.fileType) }}</el-tag>
+            <span>{{ row.fileSizeFormatted }}</span>
+            <span>{{ row.uploaderName }}</span>
+          </div>
+          <div class="m-card__meta muted">
+            {{ row.categoryName }} · {{ row.createTime?.slice(0,16).replace('T',' ') }}
+          </div>
+          <div v-if="row.description" class="m-card__desc">{{ row.description }}</div>
+          <div class="m-card__actions">
+            <el-button size="small" @click="openPreview(row)">查看</el-button>
+            <el-button v-if="Number(row.status) === 0" size="small" type="primary" @click="openAuditDialog(row)">审批</el-button>
+          </div>
+        </div>
+        <el-empty v-if="!loading && tableData.length===0" :description="'暂无' + statusLabel(filterStatus) + '资源'" />
+      </div>
+
+      <!-- 桌面端：表格 -->
+      <div v-else class="table-wrap">
       <el-table :data="tableData" v-loading="loading" stripe>
         <el-table-column prop="originalName" label="文件名" min-width="150" />
         <el-table-column label="预览" width="80">
@@ -52,8 +78,9 @@
           </template>
         </el-table-column>
       </el-table>
+      </div>
 
-      <el-empty v-if="!loading && tableData.length===0" :description="'暂无' + statusLabel(filterStatus) + '资源'" />
+      <el-empty v-if="!isMobile && !loading && tableData.length===0" :description="'暂无' + statusLabel(filterStatus) + '资源'" />
 
       <div style="margin-top:16px;text-align:right">
         <el-pagination
@@ -139,6 +166,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
+import { useIsMobile } from '@/composables/useIsMobile'
 
 interface ResourceFile {
   id: string
@@ -154,6 +182,8 @@ interface ResourceFile {
   filePath: string
   fileUrl: string
 }
+
+const { isMobile } = useIsMobile()
 
 const loading = ref(false)
 const tableData = ref<ResourceFile[]>([])

@@ -73,7 +73,8 @@
         <el-tab-pane label="上传的资源" name="resources">
           <div v-loading="resourcesLoading">
             <div v-if="resources.length" class="resource-table">
-              <el-table :data="resources" style="width: 100%" size="medium">
+              <div class="table-wrap">
+      <el-table :data="resources" style="width: 100%" size="medium">
                 <el-table-column label="文件名" min-width="200">
                   <template #default="{ row }">
                     <div class="file-name-cell">
@@ -110,6 +111,7 @@
                   </template>
                 </el-table-column>
               </el-table>
+      </div>
             </div>
             <el-empty v-else description="暂无上传的资源" />
 

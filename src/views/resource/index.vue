@@ -35,6 +35,38 @@
 
     <!-- 资源列表 -->
     <el-card v-loading="loading" shadow="never">
+      <!-- 移动端：卡片列表 -->
+      <div v-if="isMobile" class="mobile-cards">
+        <div v-for="row in resources" :key="row.id" class="m-card">
+          <div class="m-card__head">
+            <el-icon size="20" :color="getFileIconColor(row.fileType)">
+              <Document v-if="row.fileType === 'DOCUMENT'" />
+              <VideoCamera v-else-if="row.fileType === 'VIDEO'" />
+              <Picture v-else-if="row.fileType === 'IMAGE'" />
+              <Files v-else />
+            </el-icon>
+            <span class="m-card__title">{{ row.originalName }}</span>
+          </div>
+          <div class="m-card__meta">
+            <el-tag size="small" :type="getFileTypeTag(row.fileType)">{{ row.fileType }}</el-tag>
+            <span>{{ row.fileSizeFormatted || formatFileSize(row.fileSize) }}</span>
+            <span>{{ row.uploaderName }}</span>
+          </div>
+          <div class="m-card__meta muted">
+            {{ formatTime(row.createTime) }} · 下载 {{ row.downloadCount }}
+          </div>
+          <div v-if="row.description" class="m-card__desc">{{ row.description }}</div>
+          <div class="m-card__actions">
+            <el-button size="small" @click="openPreview(row)">预览</el-button>
+            <el-button v-if="row.allowDownload !== 0" size="small" type="primary" plain @click="handleDownload(row)">下载</el-button>
+            <el-button v-if="canDelete(row)" size="small" type="danger" plain @click="handleDelete(row.id)">删除</el-button>
+          </div>
+        </div>
+        <el-empty v-if="!loading && resources.length === 0" description="暂无资源" />
+      </div>
+
+      <!-- 桌面端：表格 -->
+      <div v-else class="table-wrap">
       <el-table :data="resources" style="width: 100%">
         <el-table-column label="文件名" min-width="250">
           <template #default="{ row }">
@@ -101,6 +133,7 @@
           </template>
         </el-table-column>
       </el-table>
+      </div>
       
       <!-- 分页 -->
       <div class="pagination-wrapper">
@@ -206,11 +239,13 @@ import { getResourceList, uploadFile, deleteFile, downloadFile, getOssStsToken, 
 import { getStsToken, uploadToOss, OSS_DIRECT_UPLOAD_THRESHOLD } from '@/utils/oss-upload'
 import type { UploadProgress } from '@/utils/oss-upload'
 import { useUserStore } from '@/stores/user'
+import { useIsMobile } from '@/composables/useIsMobile'
 import type { ResourceFile } from '@/api/resource'
 import dayjs from 'dayjs'
 import { Search, Upload, Document, VideoCamera, Picture, Files, Download, Delete, View } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
+const { isMobile } = useIsMobile()
 // 删除权限：本人可删自己的文件，其他人需要 resource:delete
 const canDelete = (row: any) =>
   row.userId === userStore.userInfo?.id || userStore.hasPermission('resource:delete')

@@ -68,11 +68,13 @@
             <span class="collapse-title">权限管理</span>
           </template>
           <div class="content-section">
-            <el-table :data="roleList" style="width: 100%">
+            <div class="table-wrap">
+      <el-table :data="roleList" style="width: 100%">
               <el-table-column prop="role" label="角色" width="120" />
               <el-table-column prop="name" label="名称" width="120" />
               <el-table-column prop="permissions" label="权限说明" />
             </el-table>
+      </div>
             <div class="usage-guide" style="margin-top: 20px;">
               <h4>权限说明：</h4>
               <ol>

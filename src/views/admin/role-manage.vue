@@ -66,6 +66,7 @@
       </el-form>
 
       <!-- 用户表格 -->
+      <div class="table-wrap">
       <el-table :data="userList" stripe v-loading="loading" class="user-table">
         <el-table-column label="头像" width="70">
           <template #default="{ row }">
@@ -120,6 +121,7 @@
           </template>
         </el-table-column>
       </el-table>
+      </div>
 
       <el-pagination
         v-if="total > 0"

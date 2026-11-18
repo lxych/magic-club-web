@@ -55,6 +55,7 @@
       </el-form>
 
       <!-- 数据表格 -->
+      <div class="table-wrap">
       <el-table :data="tableData" v-loading="loading" stripe>
         <el-table-column label="时间" width="160">
           <template #default="{ row }">
@@ -78,6 +79,7 @@
         </el-table-column>
         <el-table-column prop="ip" label="IP地址" width="140" />
       </el-table>
+      </div>
 
       <el-empty v-if="!loading && tableData.length === 0" description="暂无操作日志" />
 
