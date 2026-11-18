@@ -2,7 +2,7 @@
   <div class="audit-page">
     <el-card shadow="never">
       <template #header>
-        <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="audit-header">
           <span class="title">📋 资源审批</span>
           <el-radio-group v-model="filterStatus" @change="onFilterChange">
             <el-radio-button :value="0">⏳ 待审批</el-radio-button>
@@ -308,6 +308,58 @@ onMounted(fetchList)
   :deep(.el-table) {
     border-radius: 10px;
     overflow: hidden;
+  }
+
+  /* 桌面端：标题左、筛选右 */
+  .audit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  /* 移动端：标题一行，三个筛选按钮等分一行 */
+  @media (max-width: 768px) {
+    .audit-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+
+      .title {
+        font-size: 16px;
+        background: none;
+        -webkit-text-fill-color: var(--mc-text-primary);
+      }
+
+      :deep(.el-radio-group) {
+        display: flex;
+        width: 100%;
+        flex-wrap: nowrap;
+      }
+
+      :deep(.el-radio-button) {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+
+      :deep(.el-radio-button__inner) {
+        width: 100%;
+        padding: 9px 4px;
+        font-size: 13px;
+        border-radius: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      :deep(.el-radio-button:first-child .el-radio-button__inner) {
+        border-radius: 8px 0 0 8px;
+      }
+
+      :deep(.el-radio-button:last-child .el-radio-button__inner) {
+        border-radius: 0 8px 8px 0;
+      }
+    }
   }
 }
 </style>

@@ -230,14 +230,30 @@ const flipToRegister = () => {
 const handleLogin = async () => {
   const valid = await loginFormRef.value?.validate()
   if (!valid) return
-  
+
   loginLoading.value = true
   try {
     await userStore.login(loginForm.username, loginForm.password)
     ElMessage.success('登录成功')
-    router.push('/')
+  } catch (e) {
+    // 错误提示由 axios 拦截器统一处理；
+    // 即使后续步骤抛异常，只要 token 已写入就必须继续跳转
   } finally {
     loginLoading.value = false
+  }
+
+  // 跳转移出 try 块：之前写在 try 里，iOS 上本地存储写入失败会中断，
+  // 表现为"提示登录成功但不跳转、刷新才进"
+  if (userStore.isLoggedIn) {
+    await router.replace('/')
+
+    // 兜底：个别移动端浏览器会吞掉 SPA 路由跳转，
+    // 500ms 后仍停在登录页就整页跳转
+    setTimeout(() => {
+      if (router.currentRoute.value.path === '/login') {
+        window.location.replace('/')
+      }
+    }, 500)
   }
 }
 
@@ -520,6 +536,43 @@ html.dark .auth-page {
   .card-wrapper {
     width: 320px;
     height: 440px;
+  }
+
+  /* ---------- 移动端性能优化：解决翻牌卡顿 ---------- */
+  /* 1. 去掉毛玻璃：backdrop-filter 在手机上极耗 GPU */
+  .card-back {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: var(--auth-card-bg);
+  }
+
+  /* 2. 简化阴影 + 缩短动画 + 提升为独立图层 */
+  .card {
+    box-shadow: 0 10px 28px rgba(102, 126, 234, 0.18);
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+
+  /* 3. 关闭持续运行的装饰动画 */
+  .card-icon {
+    animation: none !important;
+    filter: none;
+  }
+
+  .auth-page::before,
+  .auth-page::after {
+    animation: none !important;
+  }
+
+  /* 4. 触屏无 hover，禁用悬停位移避免点击时误触发重绘 */
+  .card-wrapper:not(.flipped):hover .card {
+    transform: none;
+    box-shadow: 0 10px 28px rgba(102, 126, 234, 0.18);
+  }
+
+  .card-wrapper.flipped:hover .card {
+    transform: rotateY(180deg);
+    box-shadow: 0 10px 28px rgba(102, 126, 234, 0.18);
   }
 }
 

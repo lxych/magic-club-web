@@ -50,7 +50,13 @@ export const useUserStore = defineStore('user', () => {
 
   const setToken = (newToken: string) => {
     token.value = newToken
-    localStorage.setItem('token', newToken)
+    // iOS Safari 隐私模式 / 存储满时 setItem 会抛异常，
+    // 不能让存储失败打断登录流程（否则表现为"登录了但不跳转"）
+    try {
+      localStorage.setItem('token', newToken)
+    } catch (e) {
+      console.warn('token 写入本地存储失败', e)
+    }
   }
 
   /** 统一写入权限：以服务端返回为准，返回空数组也如实写入 */
@@ -60,7 +66,11 @@ export const useUserStore = defineStore('user', () => {
     } else {
       permissions.value = ROLE_PERMISSIONS[role || ''] || []
     }
-    localStorage.setItem('permissions', JSON.stringify(permissions.value))
+    try {
+      localStorage.setItem('permissions', JSON.stringify(permissions.value))
+    } catch (e) {
+      console.warn('权限写入本地存储失败', e)
+    }
     permsLoaded.value = true
     permsLoadedAt.value = Date.now()
   }
