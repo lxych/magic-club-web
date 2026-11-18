@@ -163,17 +163,30 @@ onMounted(() => {
   })
 })
 
+// 权限实时性：切回标签页时刷新一次权限。
+// 管理员在后台给某人授权后，对方切回页面即可看到新菜单，不必重新登录。
+const handleVisibilityChange = () => {
+  if (document.visibilityState === 'visible') {
+    userStore.fetchUserInfo()
+  }
+}
+onMounted(() => {
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+})
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+})
+
 const menuItems = computed(() => {
   const routes = router.getRoutes().find(r => r.name === 'Layout')?.children || []
   return routes
     .filter(r => {
       if (r.meta?.hidden) return false
-      // 检查 adminOnly
-      if (r.meta?.adminOnly && userStore.userInfo?.role !== 'ADMIN') return false
-      // 检查 requiredPermission
+      // 页面可见性只看权限码，不看角色。
+      // 角色只是权限码的默认来源，管理员仍可给单个成员额外授权。
       if (r.meta?.requiredPermission) {
         const perm = r.meta.requiredPermission as string
-        if (!localPerms.value.includes(perm)) return false
+        return userStore.permissions.includes(perm)
       }
       return true
     })

@@ -7,6 +7,9 @@ import App from './App.vue'
 import router from './router'
 
 import 'element-plus/dist/index.css'
+// Element Plus 暗色主题变量：不引入这份 css-vars，html.dark 下的输入框、
+// 下拉、日期选择器等组件仍保持亮色，就会出现“切了暗色但有些地方没变”的现象
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import './styles/theme.css'
 import './assets/mobile.css'
 

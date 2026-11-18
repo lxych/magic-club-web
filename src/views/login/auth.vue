@@ -258,17 +258,58 @@ const handleRegister = async () => {
 </script>
 
 <style scoped lang="scss">
+/* =========================================================
+ * 登录 / 注册 翻牌页
+ * 配色全部走 CSS 变量，亮色与暗色各一套，避免出现
+ * “切模式后个别卡面颜色没跟上”的问题。
+ * ========================================================= */
 .auth-page {
+  /* ---- 亮色（默认） ---- */
+  --auth-bg: linear-gradient(135deg, #eef2ff 0%, #f8fafc 50%, #e0e7ff 100%);
+  --auth-card-bg: rgba(255, 255, 255, 0.96);
+  --auth-card-border: rgba(102, 126, 234, 0.14);
+  --auth-title: #1e293b;
+  --auth-text: #475569;
+  --auth-muted: #64748b;
+  --auth-input-border: #e2e8f0;
+  --auth-shadow: 0 25px 60px rgba(102, 126, 234, 0.16);
+  --auth-front: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+  --auth-front-border: rgba(255, 255, 255, 0.24);
+  --auth-title-from: #667eea;
+  --auth-title-to: #764ba2;
+  --auth-btn-from: #667eea;
+  --auth-btn-to: #764ba2;
+  --auth-btn-shadow: rgba(102, 126, 234, 0.35);
+
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  background: var(--auth-bg);
+  background-size: 200% 200%;
   padding: 20px;
   position: relative;
   overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+/* ---- 暗色 ---- */
+html.dark .auth-page {
+  --auth-bg: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  --auth-card-bg: rgba(30, 41, 59, 0.95);
+  --auth-card-border: rgba(255, 255, 255, 0.08);
+  --auth-title: #e2e8f0;
+  --auth-text: #cbd5e1;
+  --auth-muted: #94a3b8;
+  --auth-input-border: #334155;
+  --auth-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+  --auth-front: linear-gradient(145deg, #4c51bf 0%, #553c9a 100%);
+  --auth-front-border: rgba(255, 255, 255, 0.12);
+  --auth-title-from: #818cf8;
+  --auth-title-to: #a78bfa;
+  --auth-btn-from: #818cf8;
+  --auth-btn-to: #a78bfa;
+  --auth-btn-shadow: rgba(129, 140, 248, 0.35);
 }
 
 /* 背景装饰粒子 */
@@ -277,7 +318,8 @@ const handleRegister = async () => {
   content: '';
   position: absolute;
   border-radius: 50%;
-  opacity: 0.1;
+  opacity: 0.12;
+  pointer-events: none;
   animation: float 6s ease-in-out infinite;
 }
 
@@ -310,11 +352,9 @@ const handleRegister = async () => {
   width: 360px;
   height: 480px;
   cursor: pointer;
-  
-  &.flipped {
-    .card {
-      transform: rotateY(180deg);
-    }
+
+  &.flipped .card {
+    transform: rotateY(180deg);
   }
 }
 
@@ -325,7 +365,7 @@ const handleRegister = async () => {
   transform-style: preserve-3d;
   transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border-radius: 20px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--auth-shadow);
 }
 
 .card-face {
@@ -335,112 +375,123 @@ const handleRegister = async () => {
   backface-visibility: hidden;
   border-radius: 20px;
   overflow: hidden;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+/* 正面：品牌卡，两个模式下都保持品牌渐变，仅深浅不同 */
 .card-front {
-  background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+  background: var(--auth-front);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  
+  border: 1px solid var(--auth-front-border);
+
   .card-content {
     text-align: center;
-    color: white;
     padding: 40px;
-    
+    color: #fff;
+
     .card-icon {
       margin-bottom: 24px;
-      color: white;
+      color: #fff;
       filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
       animation: float 3s ease-in-out infinite;
     }
-    
+
     .card-title {
       font-size: 32px;
       margin: 0 0 12px;
       font-weight: 700;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
-    
+
     .card-desc {
       font-size: 15px;
-      opacity: 0.9;
+      opacity: 0.92;
       margin: 0;
     }
   }
 }
 
+/* 背面：表单卡，跟随主题切换 */
 .card-back {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--auth-card-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   transform: rotateY(180deg);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  
+  border: 1px solid var(--auth-card-border);
+
   .form-content {
     padding: 36px;
     height: 100%;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    
+
     .form-title {
       text-align: center;
       margin: 0 0 20px;
       font-size: 22px;
       font-weight: 700;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--auth-title-from) 0%, var(--auth-title-to) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    
+
     :deep(.el-form-item) {
       margin-bottom: 18px;
     }
-    
+
+    /* 输入框底色跟随卡片，避免暗色下出现“白底黑字卡面”的割裂感 */
     :deep(.el-input__wrapper) {
       padding: 8px 16px;
       border-radius: 10px;
-      box-shadow: 0 0 0 1px var(--mc-border) inset !important;
-      transition: all 0.3s ease !important;
+      background-color: transparent;
+      box-shadow: 0 0 0 1px var(--auth-input-border) inset !important;
+      transition: box-shadow 0.3s ease;
     }
-    
+
     :deep(.el-input__wrapper.is-focus) {
       box-shadow: 0 0 0 1px var(--mc-primary) inset, 0 0 12px rgba(102, 126, 234, 0.15) !important;
     }
-    
+
+    :deep(.el-input__inner) {
+      color: var(--auth-title);
+    }
+
     .submit-btn {
       width: 100%;
       padding: 14px;
       font-size: 16px;
       font-weight: 600;
       border-radius: 10px !important;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-      transition: all 0.3s ease;
-      
+      border: none !important;
+      color: #fff !important;
+      background: linear-gradient(135deg, var(--auth-btn-from) 0%, var(--auth-btn-to) 100%) !important;
+      box-shadow: 0 4px 15px var(--auth-btn-shadow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        box-shadow: 0 6px 20px var(--auth-btn-shadow);
       }
     }
-    
+
     .switch-tip {
       text-align: center;
       margin: 12px 0 0;
       font-size: 14px;
-      color: var(--mc-text-secondary);
-      
+      color: var(--auth-muted);
+
       .switch-link {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--auth-title-from) 0%, var(--auth-title-to) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         cursor: pointer;
         font-weight: 600;
-        
+
         &:hover {
           text-decoration: underline;
         }
@@ -450,17 +501,13 @@ const handleRegister = async () => {
 }
 
 /* 悬停效果 */
-.card-wrapper:not(.flipped):hover {
-  .card {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 30px 80px rgba(102, 126, 234, 0.3);
-  }
+.card-wrapper:not(.flipped):hover .card {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 30px 80px var(--auth-btn-shadow);
 }
 
-.card-wrapper.flipped:hover {
-  .card {
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
-  }
+.card-wrapper.flipped:hover .card {
+  box-shadow: var(--auth-shadow);
 }
 
 /* 响应式 */
@@ -469,7 +516,7 @@ const handleRegister = async () => {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .card-wrapper {
     width: 320px;
     height: 440px;
@@ -481,32 +528,37 @@ const handleRegister = async () => {
   .auth-page {
     padding: 12px;
   }
-  
+
   .auth-page::before,
   .auth-page::after {
     display: none;
   }
-  
+
   .cards-container {
     gap: 16px;
     align-items: center;
   }
-  
+
   .card-wrapper {
     width: calc(100vw - 32px);
     max-width: 360px;
     height: 460px;
   }
-  
+
   .card-back .form-content {
     padding: 20px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    
+
     .form-title {
       font-size: 20px;
       margin-bottom: 12px;
     }
   }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
 }
 </style>

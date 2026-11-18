@@ -1,0 +1,66 @@
+/* ===== 全局移动端适配 ===== */
+
+@media (max-width: 768px) {
+  /* 表格容器横滚 */
+  .el-table {
+    font-size: 13px;
+  }
+
+  /* 卡片间距 */
+  .el-card {
+    margin-bottom: 12px;
+  }
+
+  /* 表单全宽 */
+  .el-form-item {
+    .el-input,
+    .el-select,
+    .el-input-number,
+    .el-date-picker {
+      width: 100% !important;
+    }
+  }
+
+  /* 对话框全屏 */
+  .el-dialog {
+    width: 92% !important;
+    margin-top: 8vh !important;
+    
+    .el-dialog__body {
+      max-height: 65vh;
+      overflow-y: auto;
+    }
+  }
+
+  /* 首页统计卡片 */
+  .stats-row .el-col {
+    margin-bottom: 12px;
+  }
+
+  /* 分页器居中 */
+  .el-pagination {
+    justify-content: center;
+    flex-wrap: wrap;
+    
+    .el-pagination__sizes,
+    .el-pagination__jump {
+      display: none;
+    }
+  }
+  
+  /* 用户信息简化 */
+  .user-info .username {
+    display: none;
+  }
+
+  /* 搜索区域换行 */
+  .forum-header,
+  .search-area {
+    flex-wrap: wrap;
+  }
+
+  /* 按钮组 */
+  .el-button {
+    font-size: 13px;
+  }
+}

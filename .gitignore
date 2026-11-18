@@ -1,0 +1,15 @@
+# 依赖目录
+node_modules/
+
+# 构建产物（部署时本地构建后上传，不入库）
+dist/
+
+# 日志与临时文件
+*.log
+*.local
+.DS_Store
+Thumbs.db
+
+# IDE 工作区（项目级配置如 vcs.xml 保留）
+.idea/workspace.xml
+.idea/shelf/

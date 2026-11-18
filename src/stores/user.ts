@@ -3,27 +3,73 @@ import { ref, computed } from 'vue'
 import { login as loginApi, getUserInfo } from '@/api/user'
 import type { UserInfo } from '@/api/user'
 
+/**
+ * 角色默认权限（仅在后端没有返回 permissions 时兜底使用）
+ * 真正的权限判断以服务端 RolePermissions.getUserPermissions 为准
+ */
+const ROLE_PERMISSIONS: Record<string, string[]> = {
+  ADMIN: [
+    'forum:create', 'forum:delete', 'forum:top', 'forum:essence',
+    'resource:upload', 'resource:audit', 'resource:delete',
+    'announcement:send', 'announcement:recall',
+    'user:manage', 'user:viewAll',
+    'system:config', 'log:view', 'role:manage'
+  ],
+  MODERATOR: [
+    // 成员基础能力
+    'forum:create', 'resource:upload',
+    // 论坛管理
+    'forum:delete', 'forum:top', 'forum:essence',
+    // 资源审核与清理
+    'resource:audit', 'resource:delete',
+    // 公告
+    'announcement:send', 'announcement:recall',
+    // 花名册
+    'user:viewAll'
+  ],
+  MEMBER: ['forum:create', 'resource:upload'],
+  ALUMNI: []
+}
+
 export const useUserStore = defineStore('user', () => {
   // State
   const token = ref<string>(localStorage.getItem('token') || '')
   const userInfo = ref<UserInfo | null>(null)
   const permissions = ref<string[]>([])
+  /** 本次会话是否已经从服务端拉过权限，用于路由守卫只拉一次 */
+  const permsLoaded = ref(false)
+  /** 上次拉取权限的时间戳，用于按 TTL 刷新 */
+  const permsLoadedAt = ref(0)
 
   // Getters
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => userInfo.value?.role === 'ADMIN')
   const isModerator = computed(() => userInfo.value?.role === 'MODERATOR')
 
-  // Actions
+  const hasPermission = (code: string): boolean => permissions.value.includes(code)
+
   const setToken = (newToken: string) => {
     token.value = newToken
     localStorage.setItem('token', newToken)
+  }
+
+  /** 统一写入权限：以服务端返回为准，返回空数组也如实写入 */
+  const applyPermissions = (list: unknown, role?: string) => {
+    if (Array.isArray(list)) {
+      permissions.value = list as string[]
+    } else {
+      permissions.value = ROLE_PERMISSIONS[role || ''] || []
+    }
+    localStorage.setItem('permissions', JSON.stringify(permissions.value))
+    permsLoaded.value = true
+    permsLoadedAt.value = Date.now()
   }
 
   const clearToken = () => {
     token.value = ''
     userInfo.value = null
     permissions.value = []
+    permsLoaded.value = false
     localStorage.removeItem('token')
     localStorage.removeItem('permissions')
   }
@@ -32,42 +78,30 @@ export const useUserStore = defineStore('user', () => {
     const res = await loginApi(username, password)
     setToken(res.token)
     userInfo.value = res.userInfo
-    // 保存权限列表
-    if (res.permissions && res.permissions.length > 0) {
-      permissions.value = res.permissions
-      localStorage.setItem('permissions', JSON.stringify(res.permissions))
-    } else {
-      // 后端未返回权限，根据角色兜底
-      autoFillPermissions(res.userInfo?.role || '')
-    }
+    applyPermissions(res.permissions, res.userInfo?.role)
     return res
   }
 
+  /**
+   * 拉取当前用户信息与最新权限
+   * 注意：权限以服务端为准，管理员改完权限后前端刷新即可生效，无需重新登录
+   */
   const fetchUserInfo = async () => {
-    if (!token.value) return null
+    if (!token.value) {
+      permsLoaded.value = true
+      return null
+    }
     try {
-      const res = await getUserInfo()
-      // 后端 /user/info 返回 { userInfo, permissions }
-      const data = res as any
-      
-      // 提取 userInfo
-      const userInfoData = data?.userInfo || data
+      const res: any = await getUserInfo()
+      const userInfoData = res?.userInfo || res
       if (userInfoData) {
         userInfo.value = userInfoData
       }
-      
-      // 提取 permissions
-      const permsData = data?.permissions
-      if (permsData && Array.isArray(permsData) && permsData.length > 0) {
-        permissions.value = permsData
-        localStorage.setItem('permissions', JSON.stringify(permsData))
-      } else {
-        // 兜底：按角色填充
-        autoFillPermissions(userInfoData?.role || '')
-      }
-      
+      applyPermissions(res?.permissions, userInfoData?.role)
       return userInfo.value
     } catch {
+      // 失败也要标记，避免路由守卫反复请求
+      permsLoaded.value = true
       return null
     }
   }
@@ -83,60 +117,23 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  // 根据角色自动填充权限（兜底）
-  const ALL_PERMISSIONS = [
-    'forum:create', 'forum:delete', 'forum:top', 'forum:essence',
-    'resource:upload', 'resource:audit', 'resource:delete',
-    'announcement:send', 'announcement:recall',
-    'user:manage', 'user:viewAll',
-    'system:config', 'log:view', 'role:manage'
-  ]
-  const MODERATOR_PERMISSIONS = [
-    'forum:delete', 'forum:top', 'forum:essence',
-    'resource:audit',
-    'announcement:send', 'announcement:recall',
-    'user:viewAll'
-  ]
-  const autoFillPermissions = (role: string) => {
-    // 如果 localStorage 已有登录时保存的权限，直接使用
-    const storedFromLogin = localStorage.getItem('permissions')
-    if (storedFromLogin) {
-      try {
-        const parsed = JSON.parse(storedFromLogin)
-        if (parsed.length > 0) {
-          permissions.value = parsed
-          return
-        }
-      } catch { /* ignore */ }
-    }
-    
-    // 没有存储时，按角色给默认权限
-    if (role === 'ADMIN') {
-      permissions.value = ALL_PERMISSIONS
-    } else if (role === 'MODERATOR') {
-      permissions.value = MODERATOR_PERMISSIONS
-    } else if (role === 'MEMBER') {
-      permissions.value = ['forum:create', 'resource:upload']
-    } else {
-      permissions.value = []
-    }
-    localStorage.setItem('permissions', JSON.stringify(permissions.value))
-  }
-
   const logout = () => {
     clearToken()
   }
 
-  // 初始化时从 localStorage 恢复权限
+  // 初始化时先从本地缓存恢复，保证首屏不闪；真实数据由 fetchUserInfo 覆盖
   loadPermissionsFromStorage()
 
   return {
     token,
     userInfo,
     permissions,
+    permsLoaded,
+    permsLoadedAt,
     isLoggedIn,
     isAdmin,
     isModerator,
+    hasPermission,
     login,
     logout,
     fetchUserInfo,

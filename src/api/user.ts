@@ -122,6 +122,11 @@ export const getUserPermissions = (id: string | number) => {
   return request.get<string[]>(`/user/${id}/permissions`)
 }
 
+// 获取权限明细：区分角色默认权限与单独授予的增量权限（管理员）
+export const getUserPermissionDetail = (id: string | number) => {
+  return request.get<any>(`/user/${id}/permissions/detail`)
+}
+
 // 更新用户权限（管理员）
 export const updateUserPermissions = (id: string | number, permissions: string[]) => {
   return request.put(`/user/${id}/permissions`, { permissions })

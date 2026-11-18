@@ -68,7 +68,7 @@ const router = createRouter({
           path: 'alumni',
           name: 'Alumni',
           component: () => import('@/views/user/alumni.vue'),
-          meta: { title: '花名册', icon: 'UserFilled', adminOnly: true }
+          meta: { title: '花名册', icon: 'UserFilled', requiredPermission: 'user:viewAll' }
         },
         {
           path: 'user/:id',
@@ -83,7 +83,7 @@ const router = createRouter({
           meta: { 
             title: '管理员手册', 
             icon: 'Document',
-            adminOnly: true
+            requiredPermission: 'system:config'
           }
         },
         {
@@ -93,7 +93,7 @@ const router = createRouter({
           meta: {
             title: '资源审批',
             icon: 'Checked',
-            adminOnly: true
+            requiredPermission: 'resource:audit'
           }
         },
         {
@@ -103,7 +103,7 @@ const router = createRouter({
           meta: {
             title: '发送公告',
             icon: 'Message',
-            adminOnly: true
+            requiredPermission: 'announcement:send'
           }
         },
         {
@@ -113,7 +113,6 @@ const router = createRouter({
           meta: {
             title: '操作日志',
             icon: 'List',
-            adminOnly: true,
             requiredPermission: 'log:view'
           }
         },
@@ -124,7 +123,6 @@ const router = createRouter({
           meta: {
             title: '权限管理',
             icon: 'Lock',
-            adminOnly: true,
             requiredPermission: 'role:manage'
           }
         }
@@ -139,25 +137,38 @@ const router = createRouter({
 })
 
 // 路由守卫
-router.beforeEach((to, from, next) => {
+// 说明：页面可见性完全由「权限码」决定，不再把角色写死成 ADMIN 判断。
+// 这样管理员在权限管理页给某个成员单独授权后，对方刷新页面即可看到对应菜单。
+router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
-  
+
   if (!to.meta.public && !userStore.isLoggedIn) {
     next('/login')
-  } else if (to.path === '/login' && userStore.isLoggedIn) {
-    next('/')
-  } else if (to.meta.adminOnly && !userStore.isAdmin) {
-    next('/dashboard')
-  } else if (to.meta.requiredPermission) {
-    const requiredPerm = to.meta.requiredPermission as string
-    if (userStore.permissions.includes(requiredPerm)) {
-      next()
-    } else {
-      next('/dashboard')
-    }
-  } else {
-    next()
+    return
   }
+
+  if (to.path === '/login' && userStore.isLoggedIn) {
+    next('/')
+    return
+  }
+
+  // 权限以服务端为准：首次进入必拉；之后超过 30 秒再拉一次，
+  // 这样管理员授权后，对方换个页面（或切回标签页）就能看到新菜单，无需重新登录
+  const PERM_TTL = 30 * 1000
+  if (
+    userStore.isLoggedIn &&
+    (!userStore.permsLoaded || Date.now() - userStore.permsLoadedAt > PERM_TTL)
+  ) {
+    await userStore.fetchUserInfo()
+  }
+
+  const requiredPerm = to.meta.requiredPermission as string | undefined
+  if (requiredPerm && !userStore.permissions.includes(requiredPerm)) {
+    next('/dashboard')
+    return
+  }
+
+  next()
 })
 
 export default router

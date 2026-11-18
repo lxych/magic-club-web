@@ -91,7 +91,7 @@
               <el-icon><Download /></el-icon>
             </el-button>
             <el-button 
-              v-if="row.userId === userStore.userInfo?.id || isAdmin" 
+              v-if="canDelete(row)" 
               type="danger" 
               link 
               @click="handleDelete(row.id)"
@@ -211,7 +211,9 @@ import dayjs from 'dayjs'
 import { Search, Upload, Document, VideoCamera, Picture, Files, Download, Delete, View } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
-const isAdmin = computed(() => userStore.userInfo?.role === 'ADMIN')
+// 删除权限：本人可删自己的文件，其他人需要 resource:delete
+const canDelete = (row: any) =>
+  row.userId === userStore.userInfo?.id || userStore.hasPermission('resource:delete')
 
 const loading = ref(false)
 const resources = ref<ResourceFile[]>([])

@@ -26,15 +26,17 @@
         <el-button :type="liked ? 'primary' : ''" @click="handleLike">
           <el-icon><Star /></el-icon> {{ liked ? '已点赞' : '点赞' }}
         </el-button>
-        <!-- 管理员操作 -->
-        <template v-if="isAdmin">
+        <!-- 权限操作：置顶 / 精华 -->
+        <template v-if="canTop || canEssence">
           <el-button 
+            v-if="canTop"
             :type="post.isTop == 1 ? 'warning' : ''" 
             @click="handleToggleTop"
           >
             <el-icon><Top /></el-icon> {{ post.isTop == 1 ? '取消置顶' : '置顶' }}
           </el-button>
           <el-button 
+            v-if="canEssence"
             :type="post.isEssence == 1 ? 'success' : ''" 
             @click="handleToggleEssence"
           >
@@ -247,13 +249,12 @@ const isAuthor = computed(() => {
 })
 
 const canDelete = computed(() => {
-  // 作者或管理员可以删除
-  return isAuthor.value || userStore.userInfo?.role === 'ADMIN'
+  // 作者本人，或拥有 forum:delete 权限的人可以删除
+  return isAuthor.value || userStore.hasPermission('forum:delete')
 })
 
-const isAdmin = computed(() => {
-  return userStore.userInfo?.role === 'ADMIN'
-})
+const canTop = computed(() => userStore.hasPermission('forum:top'))
+const canEssence = computed(() => userStore.hasPermission('forum:essence'))
 
 const formatTime = (time: string) => dayjs(time).format('YYYY-MM-DD HH:mm')
 
